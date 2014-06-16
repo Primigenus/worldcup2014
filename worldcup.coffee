@@ -171,52 +171,52 @@ if Meteor.isServer
 
 		if Matches.find().count() is 0
 
-			A = (type, date, time, team1, team2) ->
+			A = (type, date, time, team1, team2, team1goals, team2goals) ->
 				Matches.insert
 					type: type
 					date: new Date(date + " 2014 " + time + ":00")
 					team1: Teams.findOne(code: team1)?._id or team1
 					team2: Teams.findOne(code: team2)?._id or team2
-					team1goals: 0
-					team2goals: 0
+					team1goals: team1goals or 0
+					team2goals: team2goals or 0
 
 			# Group A
-			A "A", "6/12", 22, "bra", "cro"
-			A "A", "6/13", 18, "mex", "cmr"
+			A "A", "6/12", 22, "bra", "cro", 3, 1
+			A "A", "6/13", 18, "mex", "cmr", 1, 0
 			A "A", "6/17", 21, "bra", "mex"
 			A "A", "6/19",  0, "cmr", "cro"
 			A "A", "6/23", 22, "cmr", "bra"
 			A "A", "6/23", 22, "cro", "mex"
 			# Group B
-			A "B", "6/13", 21, "esp", "ned"
-			A "B", "6/14",  0, "chi", "aus"
+			A "B", "6/13", 21, "esp", "ned", 1, 5
+			A "B", "6/14",  0, "chi", "aus", 3, 1
 			A "B", "6/18", 18, "aus", "ned"
 			A "B", "6/18", 21, "aus", "esp"
 			A "B", "6/23", 18, "aus", "esp"
 			A "B", "6/23", 18, "ned", "chi"
 			# Group C
-			A "C", "6/14", 18, "col", "gre"
-			A "C", "6/15",  3, "civ", "jpn"
+			A "C", "6/14", 18, "col", "gre", 3, 0
+			A "C", "6/15",  3, "civ", "jpn", 2, 1
 			A "C", "6/19", 18, "col", "civ"
 			A "C", "6/20",  0, "jpn", "gre"
 			A "C", "6/24", 22, "jpn", "col"
 			A "C", "6/24", 22, "gre", "civ"
 			# Group D
-			A "D", "6/14", 21, "uru", "crc"
-			A "D", "6/15",  0, "eng", "ita"
+			A "D", "6/14", 21, "uru", "crc", 1, 3
+			A "D", "6/15",  0, "eng", "ita", 1, 2
 			A "D", "6/19", 21, "uru", "eng"
 			A "D", "6/20", 18, "ita", "crc"
 			A "D", "6/24", 18, "ita", "uru"
 			A "D", "6/24", 18, "crc", "eng"
 			# Group E
-			A "E", "6/15", 18, "sui", "ecu"
-			A "E", "6/15", 21, "fra", "hon"
+			A "E", "6/15", 18, "sui", "ecu", 2, 1
+			A "E", "6/15", 21, "fra", "hon", 3, 0
 			A "E", "6/20", 21, "sui", "fra"
 			A "E", "6/21",  0, "hon", "ecu"
 			A "E", "6/25", 22, "hon", "sui"
 			A "E", "6/25", 22, "ecu", "fra"
 			# Group F
-			A "F", "6/16",  0, "arg", "bih"
+			A "F", "6/16",  0, "arg", "bih", 2, 1
 			A "F", "6/16", 21, "irn", "nga"
 			A "F", "6/21", 18, "arg", "irn"
 			A "F", "6/22",  0, "nga", "bih"
