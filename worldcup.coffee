@@ -17,8 +17,10 @@ if Meteor.isClient
 		for matchId, goals of doc.profile.predictions
 			match = Matches.findOne(matchId)
 
-			# correct prediction: worth 1 point
-			if match?.date < new Date() and match?.team1goals is parseInt(goals.team1goals) and match?.team2goals is parseInt(goals.team2goals)
+			# predict winner = 3 points
+			# predict number of goals left = 1 point
+			# predict number of goals right = 1 point
+			if match?.date < new Date() and parseInt(match?.team1goals) is parseInt(goals.team1goals) and parseInt(match?.team2goals) is parseInt(goals.team2goals)
 				points = points + 1
 
 		if points isnt this.previous.profile.points
