@@ -1,0 +1,123 @@
+<head>
+  <title>worldcup</title>
+</head>
+
+<body>
+	<header>
+		<img src="http://static.q42.nl/images/q42-logo.svg" alt="Q42">
+		Q42 World Cup betting pool<br>
+		{{#if currentUser}}Hallo met {{/if}}
+		{{> loginButtons}}
+		<!-- {{> predictionDetails}} -->
+	</header>
+
+	{{> currentMatch}}
+	{{> leaderboard}}
+	{{> groups}}
+</body>
+
+<template name="predictionDetails">
+	<ul id="details">
+		<li># yellow cards: {{numYellowCards}}</li>
+		<li># red cards: {{numRedCards}}</li>
+		<li>most goals: {{mostGoals}}</li>
+		<li># goals: {{numGoals}}</li>
+	</ul>
+</template>
+
+<template name="leaderboard">
+	<h2>Leaderboard</h2>
+	<ol>
+		{{#each person}}
+		<li>{{name}} ({{points}} points)</li>
+		{{else}}
+		<li>No predictions :(</li>
+		{{/each}}
+	</ol>
+</template>
+
+<template name="groups">
+	{{#each group}}
+		<table id="group{{letter}}">
+			<colgroup>
+				<col width=100><col width=100><col width=250><col width=150><col width=250>
+				{{#if currentUser}}<col class="prediction">{{/if}}
+			</colgroup>
+			<caption>
+				<b>Group {{letter}}</b>
+				{{#if currentUser}}
+				<span class="inputs">
+					Your predicted winner: <b>{{winner1_prediction}}</b>
+					&mdash;
+					2nd place: {{winner2_prediction}}
+				</span>
+				{{/if}}
+			</caption>
+			<thead>
+				<tr>
+					<th>Date</th><th>Time</th><th>Team 1</th><th>Score</th><th>Team 2</th>
+					{{#if currentUser}}
+						<th>Your prediction</th>
+					{{/if}}
+				</tr>
+			</thead>
+			<tbody>
+				{{#each match}}
+					{{> matchRow}}
+				{{/each}}
+			</tbody>
+		</table>
+	{{/each}}
+</template>
+
+<template name="matchRow">
+	<tr class="{{isCurrentMatch}}" data-matchid="{{_id}}">
+		<td>{{date}}</td>
+		<td>{{time}}</td>
+		<td class="team team1"><img src="/images/128/{{team1}}.png" alt=""> {{team1}}</td>
+		<td class="score">
+			<input value="{{team1goals}}" type="number" data-field="team1goals"> - 
+			<input value="{{team2goals}}" type="number" data-field="team2goals">
+		</td>
+		<td class="team team2">{{team2}} <img src="/images/128/{{team2}}.png" alt=""></td>
+		{{#if currentUser}}
+		<td class="score prediction">
+			<input value="{{team1goals_prediction}}" type="number" data-field="team1goals"> - 
+			<input value="{{team2goals_prediction}}" type="number" data-field="team2goals">
+		</td>
+		{{/if}}
+	</tr>
+</template>
+
+<template name="currentMatch">
+	<div id="currentMatch">
+		{{#if match}}
+			<h1>Currently playing</h1>
+			{{#with match}}
+				<table>
+					<tr>
+						<td>
+							<img src="/images/128/{{team1}}.png" alt="">
+							{{team1}} 
+						</td>
+						<td>
+							<input value="{{team1goals}}" type="number" data-field="team1goals"> - 
+							<input value="{{team2goals}}" type="number" data-field="team2goals">
+						</td>
+						<td>
+							{{team2}}
+							<img src="/images/128/{{team2}}.png" alt="">
+						</td>
+					</tr>
+				</table>
+				<p>{{time}}</p>
+			{{/with}}
+		{{else}}
+			<h1>Next match</h1>
+			{{#with nextMatch}}
+				<h2><img src="/images/128/{{nextTeam1}}.png" alt=""> {{nextTeam1}} vs. {{nextTeam2}} <img src="/images/128/{{nextTeam2}}.png" alt=""></h2>
+				<h3>{{nextTime}}</h3>
+			{{/with}}
+		{{/if}}
+	</div>
+</template>
