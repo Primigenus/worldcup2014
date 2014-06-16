@@ -18,7 +18,7 @@ if Meteor.isClient
 			match = Matches.findOne(matchId)
 
 			# correct prediction: worth 1 point
-			if match?.date < new Date() and match?.team1goals is goals.team1goals and match?.team2goals is goals.team2goals
+			if match?.date < new Date() and match?.team1goals is parseInt(goals.team1goals) and match?.team2goals is parseInt(goals.team2goals)
 				points = points + 1
 
 		if points isnt this.previous.profile.points
@@ -30,10 +30,10 @@ if Meteor.isClient
 	# todo: we can calculate this based on match score predictions
 	Template.groups.winner1_prediction = ->
 		return unless Meteor.user()
-		Teams.findOne(_id: Meteor.user().profile.predictions[@_id]?.winner1)?.name or "nobody"
+		Teams.findOne(_id: Meteor.user().profile.predictions?[@_id]?.winner1)?.name or "nobody"
 	Template.groups.winner2_prediction = ->
 		return unless Meteor.user()
-		Teams.findOne(_id: Meteor.user().profile.predictions[@_id]?.winner2)?.name or "nobody"
+		Teams.findOne(_id: Meteor.user().profile.predictions?[@_id]?.winner2)?.name or "nobody"
 
 
 
@@ -50,10 +50,10 @@ if Meteor.isClient
 	Template.matchRow.team2 = -> Teams.findOne(_id: @team2)?.name
 	Template.matchRow.team1goals_prediction = ->
 		return unless Meteor.user()
-		Meteor.user().profile.predictions[@_id]?.team1goals
+		Meteor.user().profile.predictions?[@_id]?.team1goals
 	Template.matchRow.team2goals_prediction = ->
 		return unless Meteor.user()
-		Meteor.user().profile.predictions[@_id]?.team2goals
+		Meteor.user().profile.predictions?[@_id]?.team2goals
 
 	Template.matchRow.events
 		"input .score:not(.prediction) input": (evt) ->
@@ -74,7 +74,7 @@ if Meteor.isClient
 			matchesInGroup = Matches.find(type: @type).fetch()
 			predictedGroupRanking = {}
 			for match in matchesInGroup
-				predictedGoals = Meteor.user().profile.predictions[match._id]
+				predictedGoals = Meteor.user().profile.predictions?[match._id]
 				predictedGoals = {team1goals: 0, team2goals: 0} unless predictedGoals
 
 				if predictedGoals.team1goals > predictedGoals.team2goals
@@ -98,7 +98,7 @@ if Meteor.isClient
 						predictedGroupRanking[match.team2] = 3
 
 			predictedGroupRanking = _.object(_.pairs(predictedGroupRanking).sort((a, b) -> return -(a[1] - b[1])))
-			
+
 			groupId = Groups.findOne(letter: @type)._id
 			updateObj["profile.predictions.#{groupId}.winner1"] = _.keys(predictedGroupRanking)[0]
 			updateObj["profile.predictions.#{groupId}.winner2"] = _.keys(predictedGroupRanking)[1]
@@ -156,6 +156,10 @@ if Meteor.isServer
 		update: (userId, doc, fieldNames, modifier) ->
 			return no unless userId
 			yes
+
+	Accounts.onCreateUser (options, user) ->
+		user.profile.predictions = []
+		user
 
 	Meteor.startup ->
 
