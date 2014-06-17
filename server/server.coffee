@@ -28,17 +28,23 @@ Meteor.users.after.update (userId, doc, fieldNames, modifier, options) ->
 Meteor.users.allow
 	update: (userId, doc, fieldNames, modifier) ->
 		return no unless userId
+		return no if userId isnt doc._id
 		yes
 
+Accounts.config
+	restrictCreationByEmailDomain: 'q42.nl'
+
 Accounts.onCreateUser (options, user) ->
-	user.profile.predictions = {}
+	if options.profile
+		options.profile.predictions = {}
+		user.profile = options.profile
 	user
 
 Meteor.methods
 	getDate: -> new Date()
 
 	updatePredictions: (id, type, field, value) ->
-		updateObj = {}			
+		updateObj = {}
 		updateObj["profile.predictions.#{id}.#{field}"] = value
 
 		matchesInGroup = Matches.find(type: type).fetch()
