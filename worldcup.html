@@ -82,8 +82,8 @@
 		<td>{{time}}</td>
 		<td class="team team1"><img src="/images/128/{{team1}}.png" alt=""> {{team1code}}</td>
 		<td class="score">
-			<input value="{{team1goals}}" type="number" data-field="team1goals" tabindex="-1"> -
-			<input value="{{team2goals}}" type="number" data-field="team2goals" tabindex="-1">
+			<input value="{{team1goals}}" type="number" data-field="team1goals" tabindex="-1" {{disabled}}> -
+			<input value="{{team2goals}}" type="number" data-field="team2goals" tabindex="-1" {{disabled}}>
 		</td>
 		<td class="team team2">{{team2code}} <img src="/images/128/{{team2}}.png" alt=""></td>
 		{{#if currentUser}}
