@@ -11,8 +11,11 @@
 		<!-- {{> predictionDetails}} -->
 	</header>
 
-	{{> currentMatch}}
-	{{> leaderboard}}
+	<section>
+		{{> currentMatch}}
+		{{> leaderboard}}
+	</section>
+
 	{{> groups}}
 </body>
 
@@ -26,14 +29,16 @@
 </template>
 
 <template name="leaderboard">
-	<h2>Leaderboard</h2>
-	<ol>
-		{{#each person}}
-		<li>{{name}} ({{points}} points)</li>
-		{{else}}
-		<li>No predictions :(</li>
-		{{/each}}
-	</ol>
+	<div id="leaderboard">
+		<h2>Leaderboard</h2>
+		<ol>
+			{{#each person}}
+			<li>{{name}} ({{points}} points)</li>
+			{{else}}
+			<li>No predictions :(</li>
+			{{/each}}
+		</ol>
+	</div>
 </template>
 
 <template name="groups">
@@ -76,13 +81,13 @@
 		<td>{{time}}</td>
 		<td class="team team1"><img src="/images/128/{{team1}}.png" alt=""> {{team1}}</td>
 		<td class="score">
-			<input value="{{team1goals}}" type="number" data-field="team1goals"> - 
+			<input value="{{team1goals}}" type="number" data-field="team1goals"> -
 			<input value="{{team2goals}}" type="number" data-field="team2goals">
 		</td>
 		<td class="team team2">{{team2}} <img src="/images/128/{{team2}}.png" alt=""></td>
 		{{#if currentUser}}
 		<td class="score prediction">
-			<input value="{{team1goals_prediction}}" type="number" data-field="team1goals"> - 
+			<input value="{{team1goals_prediction}}" type="number" data-field="team1goals"> -
 			<input value="{{team2goals_prediction}}" type="number" data-field="team2goals">
 		</td>
 		{{/if}}
@@ -98,10 +103,10 @@
 					<tr>
 						<td>
 							<img src="/images/128/{{team1}}.png" alt="">
-							{{team1}} 
+							{{team1}}
 						</td>
 						<td>
-							<input value="{{team1goals}}" type="number" data-field="team1goals"> - 
+							<input value="{{team1goals}}" type="number" data-field="team1goals"> -
 							<input value="{{team2goals}}" type="number" data-field="team2goals">
 						</td>
 						<td>

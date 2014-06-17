@@ -48,11 +48,22 @@ table
 
 	.team2
 		text-align right
-		
-#currentMatch
+
+section
+	clear both
 	border solid 3px black
 	padding 2em
 	margin 2em 0
+	&:after
+		display block
+		content "."
+		color white
+		clear both
+
+
+#currentMatch
+	float left
+	width 500px
 	text-align center
 
 	table
@@ -75,3 +86,7 @@ table
 	input
 		font-size 24px
 		width 40px
+
+#leaderboard
+	float right
+	width 250px
