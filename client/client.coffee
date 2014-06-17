@@ -25,7 +25,7 @@ Template.matchRow.isCurrentMatch = ->
 	now = Session.get("date")
 	before = new Date(now - 1000 * 60 * 120)
 	if @date <= now and @date >= before then "current" else ""
-Template.matchRow.disabled = -> if @date < Session.get("date") then "disabled" else ""
+Template.matchRow.disabled = -> if @date < new Date(Session.get("date") - 1000 * 60 * 120) then "disabled" else ""
 Template.matchRow.date  = -> moment(@date).format("DD MMM")
 Template.matchRow.time  = ->
 	time = moment(@date).format("HH:mm")
