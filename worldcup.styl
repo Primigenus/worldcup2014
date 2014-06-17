@@ -1,7 +1,12 @@
+font = Lato, "Helvetica Neue", Helvetica, Arial, sans-serif
+
 body
 	width 80%
 	margin 2em auto
-	font-family "Helvetica Neue", Helvetica, Arial, sans-serif
+	font-family font
+
+#login-buttons *
+	font-family font !important
 
 img
 	vertical-align middle
@@ -11,24 +16,27 @@ img
 input[type='number']
 	width 25px
 	text-align center
-	font-family "Helvetica Neue", Helvetica, Arial, sans-serif
+	font-family font
 
 header
 	img
-		width 50px
-		height 70px
+		width 35px
+		height 50px
 		float left
 		margin 0 10px 0 0
 
 table
 	width 100%
-	border solid 2px black
+	border solid 2px #ccc
 
 	caption
-		background black
-		color white
+		background #ddd
+		color #999
 		padding 4px
 		text-align left
+
+		b
+			color #000
 
 		.inputs
 			margin-left 3em
@@ -37,21 +45,27 @@ table
 		&.prediction
 			background #eee
 
+	thead th
+		color #999
+		font-size 12px
+		background #eee
+		padding 3px 0
+
+	tbody td
+		white-space nowrap
+
 	.current
 		background #ffff54
 
 	.score
 		text-align center
 
-	.team
-		white-space nowrap
-
 	.team2
 		text-align right
 
 section
 	clear both
-	border solid 3px black
+	background #eee
 	padding 2em
 	margin 2em 0
 	&:after
