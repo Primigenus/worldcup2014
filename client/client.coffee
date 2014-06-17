@@ -30,7 +30,9 @@ Template.matchRow.time  = ->
 	time = moment(@date).format("HH:mm")
 	time
 Template.matchRow.team1 = -> Teams.findOne(_id: @team1)?.name
+Template.matchRow.team1code = -> Teams.findOne(_id: @team1)?.code.toUpperCase()
 Template.matchRow.team2 = -> Teams.findOne(_id: @team2)?.name
+Template.matchRow.team2code = -> Teams.findOne(_id: @team2)?.code.toUpperCase()
 Template.matchRow.team1goals_prediction = ->
 	return unless Meteor.user()
 	Meteor.user().profile.predictions?[@_id]?.team1goals
@@ -40,11 +42,9 @@ Template.matchRow.team2goals_prediction = ->
 
 Template.matchRow.events
 	"input .score:not(.prediction) input": (evt) ->
-		updateObj = {}
 		field = $(evt.target).data("field")
 		value = $(evt.target).val()
-		updateObj[field] = value
-		Matches.update @_id, $set: updateObj
+		Meteor.call "updateScore", @_id, field, value
 
 	"input .prediction input": (evt) ->
 		return unless Meteor.user()

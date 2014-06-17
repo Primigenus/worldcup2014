@@ -1,8 +1,14 @@
 Meteor.users.after.update (userId, doc, fieldNames, modifier, options) ->
 	return unless userId
 
+	points = recalcPoints doc
+
+	if points isnt this.previous.profile.points
+		Meteor.users.update userId, $set: "profile.points": points
+
+recalcPoints = (user) ->
 	points = 0
-	for matchId, predictedGoals of doc.profile.predictions
+	for matchId, predictedGoals of user.profile.predictions
 		match = Matches.findOne(matchId)
 		continue unless match
 
@@ -22,7 +28,13 @@ Meteor.users.after.update (userId, doc, fieldNames, modifier, options) ->
 			if (mt1 > mt2 and gt1 > gt2) or (mt2 > mt1 and gt2 > gt1)
 				points += 3
 
-	if points isnt this.previous.profile.points
+	points
+
+
+Meteor.startup ->
+	Matches.after.update (userId, doc, fieldNames, modifier, options) ->
+		user = Meteor.users.findOne userId
+		points = recalcPoints user
 		Meteor.users.update userId, $set: "profile.points": points
 
 Meteor.users.allow
@@ -42,6 +54,11 @@ Accounts.onCreateUser (options, user) ->
 
 Meteor.methods
 	getDate: -> new Date()
+
+	updateScore: (id, field, value) ->
+		updateObj = {}
+		updateObj[field] = value
+		Matches.update id, $set: updateObj
 
 	updatePredictions: (id, type, field, value) ->
 		updateObj = {}
@@ -113,7 +130,7 @@ Meteor.methods
 		A "B", "6/13", 21, "esp", "ned", 1, 5
 		A "B", "6/14",  0, "chi", "aus", 3, 1
 		A "B", "6/18", 18, "aus", "ned"
-		A "B", "6/18", 21, "aus", "esp"
+		A "B", "6/18", 21, "esp", "chi"
 		A "B", "6/23", 18, "aus", "esp"
 		A "B", "6/23", 18, "ned", "chi"
 		# Group C
