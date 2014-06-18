@@ -20,6 +20,12 @@ Template.groups.winner2_prediction = ->
 
 
 
+Template.finals.eighthFinal 	= -> Matches.find({type: "1/8"}, sort: type: -1)
+Template.finals.quarterFinal 	= -> Matches.find({type: "1/4"}, sort: type: -1)
+Template.finals.semiFinal 		= -> Matches.find({type: "1/2"}, sort: type: -1)
+Template.finals.final 				= -> Matches.find({type: "1/1"}, sort: type: -1)
+
+
 
 Template.matchRow.isCurrentMatch = ->
 	now = Session.get("date")
@@ -31,9 +37,9 @@ Template.matchRow.time  = ->
 	time = moment(@date).format("HH:mm")
 	time
 Template.matchRow.team1 = -> Teams.findOne(_id: @team1)?.name
-Template.matchRow.team1code = -> Teams.findOne(_id: @team1)?.code.toUpperCase()
+Template.matchRow.team1code = -> Teams.findOne(_id: @team1)?.code.toUpperCase() or @team1
 Template.matchRow.team2 = -> Teams.findOne(_id: @team2)?.name
-Template.matchRow.team2code = -> Teams.findOne(_id: @team2)?.code.toUpperCase()
+Template.matchRow.team2code = -> Teams.findOne(_id: @team2)?.code.toUpperCase() or @team2
 Template.matchRow.team1goals_prediction = ->
 	return unless Meteor.user()
 	Meteor.user().profile.predictions?[@_id]?.team1goals
@@ -53,14 +59,27 @@ Template.matchRow.events
 		field = $(evt.target).data("field")
 		value = $(evt.target).val()
 
+		# automatically skip to the next input
+		$els = $(".prediction input")
+		index = $els.index($(evt.target))
+		$next = $els.eq index + 1
+		$next.focus()
+
 		Meteor.call "updatePredictions", @_id, @type, field, value
+
 
 
 
 Template.leaderboard.person = -> Meteor.users.find({}, sort: "profile.points": -1)
 Template.leaderboard.name = -> @services.google.given_name
 Template.leaderboard.points = -> @profile.points or 0
-
+Template.leaderboard.currentMatchPrediction = ->
+	now = Session.get("date")
+	before = new Date(now - 1000 * 60 * 120)
+	currentMatch = Matches.findOne $and: [{date: $lte: now}, {date: $gte: before}]
+	if currentMatch
+		prediction = Meteor.user().profile.predictions[currentMatch._id]
+		prediction.team1goals + " - " + prediction.team2goals
 
 
 

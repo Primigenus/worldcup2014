@@ -1,9 +1,10 @@
 font = Lato, "Helvetica Neue", Helvetica, Arial, sans-serif
 
 body
-	width 80%
+	width 700px
 	margin 2em auto
 	font-family font
+	font-weight 100
 
 #login-buttons *
 	font-family font !important
@@ -17,6 +18,10 @@ input[type='number']
 	width 25px
 	text-align center
 	font-family font
+input[disabled]
+	color #999
+	background #eee
+	border solid 1px #ccc
 
 header
 	img
@@ -63,21 +68,24 @@ table
 	.team2
 		text-align right
 
+	.team1, .team2
+		font-weight 400
+
 section
-	clear both
 	background #eee
-	padding 2em
 	margin 2em 0
+
 	&:after
 		display block
 		content "."
 		color white
 		clear both
+		height 0
 
 
 #currentMatch
 	float left
-	width 500px
+	width 450px
 	text-align center
 
 	table
@@ -93,6 +101,12 @@ section
 		td:last-child
 			text-align right
 
+	h2
+		display inline-block
+		border-radius 50px
+		background #ccc
+		padding 5px
+
 	img
 		width 32px
 		height 32px
@@ -104,3 +118,10 @@ section
 #leaderboard
 	float right
 	width 250px
+	margin 0 auto
+	text-align center
+
+	ol
+		margin 0
+		padding 0
+		list-style-position inside

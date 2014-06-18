@@ -18,7 +18,60 @@
 	</section>
 
 	{{> groups}}
+
+	{{> finals}}
 </body>
+
+<template name="finals">
+	<table>
+		<colgroup>
+			<col width=100><col width=100><col width=250><col width=150><col width=250>
+			{{#if currentUser}}<col class="prediction">{{/if}}
+		</colgroup>
+		<caption><b>1/8th Finals</b> (predicted)</caption>
+		<tbody>
+			{{#each eighthFinal}}
+				{{> matchRow}}
+			{{/each}}
+		</tbody>
+	</table>
+	<table>
+		<colgroup>
+			<col width=100><col width=100><col width=250><col width=150><col width=250>
+			{{#if currentUser}}<col class="prediction">{{/if}}
+		</colgroup>
+		<caption><b>Quarter Finals</b> (predicted)</caption>
+		<tbody>
+			{{#each quarterFinal}}
+				{{> matchRow}}
+			{{/each}}
+		</tbody>
+	</table>
+	<table>
+		<colgroup>
+			<col width=100><col width=100><col width=250><col width=150><col width=250>
+			{{#if currentUser}}<col class="prediction">{{/if}}
+		</colgroup>
+		<caption><b>Semi Finals</b> (predicted)</caption>
+		<tbody>
+			{{#each semiFinal}}
+				{{> matchRow}}
+			{{/each}}
+		</tbody>
+	</table>
+	<table>
+		<colgroup>
+			<col width=100><col width=100><col width=250><col width=150><col width=250>
+			{{#if currentUser}}<col class="prediction">{{/if}}
+		</colgroup>
+		<caption><b>The Final</b> (predicted)</caption>
+		<tbody>
+			{{#each final}}
+				{{> matchRow}}
+			{{/each}}
+		</tbody>
+	</table>
+</template>
 
 <template name="predictionDetails">
 	<ul id="details">
@@ -34,7 +87,7 @@
 		<h2>Leaderboard</h2>
 		<ol>
 			{{#each person}}
-			<li>{{name}} ({{points}} points)</li>
+			<li>{{name}} ({{points}}) - {{currentMatchPrediction}}</li>
 			{{else}}
 			<li>No predictions :(</li>
 			{{/each}}
@@ -59,14 +112,6 @@
 				</span>
 				{{/if}}
 			</caption>
-			<thead>
-				<tr>
-					<th>Date</th><th>Time</th><th>Team 1</th><th>Score</th><th>Team 2</th>
-					{{#if currentUser}}
-						<th>Your prediction</th>
-					{{/if}}
-				</tr>
-			</thead>
 			<tbody>
 				{{#each match}}
 					{{> matchRow}}

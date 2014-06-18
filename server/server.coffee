@@ -32,6 +32,17 @@ recalcPoints = (user) ->
 
 
 Meteor.startup ->
+	Meteor.setInterval ->
+		now = new Date()
+		before = new Date(now - 1000 * 60 * 120)
+		currentMatch = Matches.findOne $and: [{date: $lte: now}, {date: $gte: before}]
+
+		if currentMatch
+			HTTP.get "http://worldcup.sfg.io/matches/current", (err, res) ->
+				if res.length
+					Matches.update currentMatch._id, { $set: team1goals: res[0].home_team.goals, team2goals: res[0].away_team.goals }
+	, 10000
+
 	Matches.after.update (userId, doc, fieldNames, modifier, options) ->
 		user = Meteor.users.findOne userId
 		points = recalcPoints user
@@ -52,10 +63,62 @@ Accounts.onCreateUser (options, user) ->
 		user.profile = options.profile
 	user
 
+calcRanking = (type) ->
+	matchesInGroup = Matches.find(type: type).fetch()
+	groupRanking = {}
+	for match in matchesInGroup
+		if match.team1goals > match.team2goals
+			if groupRanking[match.team1]
+				groupRanking[match.team1] += 3
+			else
+				groupRanking[match.team1] = 3
+		else if match.team1goals is match.team2goals
+			if groupRanking[match.team1]
+				groupRanking[match.team1] += 1
+			else
+				groupRanking[match.team1] = 1
+			if groupRanking[match.team2]
+				groupRanking[match.team2] += 1
+			else
+				groupRanking[match.team2] = 1
+		else
+			if groupRanking[match.team2]
+				groupRanking[match.team2] += 3
+			else
+				groupRanking[match.team2] = 3
+
+	_.object(_.pairs(groupRanking).sort((a, b) -> return -(a[1] - b[1])))
+
 Meteor.methods
 	getDate: -> new Date()
 
+	calcRankings: ->
+		letters = "ABCDEFGH".split("")
+		rankings = []
+		_.each letters, (letter, n) ->
+			rankings.push calcRanking(letters[n])
+
+		eighthFinals = Matches.find({type: "1/8"}, {sort: date: 1}).fetch()
+
+		# 1A vs 2B
+		Matches.update(eighthFinals[0]._id, {$set: {team1: _.keys(rankings[0])[0], team2: _.keys(rankings[1])[1]}})
+		# 1C vs 2D
+		Matches.update(eighthFinals[1]._id, {$set: {team1: _.keys(rankings[2])[0], team2: _.keys(rankings[3])[1]}})
+		# 1B vs 2A
+		Matches.update(eighthFinals[2]._id, {$set: {team1: _.keys(rankings[1])[0], team2: _.keys(rankings[0])[1]}})
+		# 1D vs 2C
+		Matches.update(eighthFinals[3]._id, {$set: {team1: _.keys(rankings[3])[0], team2: _.keys(rankings[2])[1]}})
+		# 1E vs 2F
+		Matches.update(eighthFinals[4]._id, {$set: {team1: _.keys(rankings[4])[0], team2: _.keys(rankings[5])[1]}})
+		# 1G vs 2H
+		Matches.update(eighthFinals[5]._id, {$set: {team1: _.keys(rankings[6])[0], team2: _.keys(rankings[7])[1]}})
+		# 1F vs 2E
+		Matches.update(eighthFinals[6]._id, {$set: {team1: _.keys(rankings[5])[0], team2: _.keys(rankings[4])[1]}})
+		# 1H vs 2G
+		Matches.update(eighthFinals[7]._id, {$set: {team1: _.keys(rankings[7])[0], team2: _.keys(rankings[6])[1]}})
+
 	updateScore: (id, field, value) ->
+		return unless @userId
 		updateObj = {}
 		updateObj[field] = value
 		Matches.update id, $set: updateObj
