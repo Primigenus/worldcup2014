@@ -25,8 +25,14 @@ recalcPoints = (user) ->
 				points++
 			if mt2 is gt2
 				points++
-			if (mt1 > mt2 and gt1 > gt2) or (mt2 > mt1 and gt2 > gt1)
+			if (mt1 > mt2 and gt1 > gt2) or (mt2 > mt1 and gt2 > gt1) or (mt2 is mt1 and gt2 is gt1)
 				points += 3
+
+		# todo: if this is a final and the match is a draw, the user can also predict who wins on penalties
+		# if so they get +3 points
+
+		# todo: user can predict who plays in which final
+		# more: https://docs.google.com/a/q42.nl/document/d/1kxvBSlTZ9Mjbd6F-alhszRAyak5CWG2u-FuCeZc_XBg/edit
 
 	points
 
