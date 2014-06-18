@@ -125,12 +125,12 @@
 	<tr class="{{isCurrentMatch}}" data-matchid="{{_id}}">
 		<td>{{date}}</td>
 		<td>{{time}}</td>
-		<td class="team team1"><img src="/images/128/{{team1}}.png" alt=""> {{team1code}}</td>
+		<td class="team team1"><img src="/images/128/{{team1}}.png" alt=""> <span class="code">{{team1code}}</span></td>
 		<td class="score">
 			<input value="{{team1goals}}" type="number" data-field="team1goals" tabindex="-1" {{disabled}}> -
 			<input value="{{team2goals}}" type="number" data-field="team2goals" tabindex="-1" {{disabled}}>
 		</td>
-		<td class="team team2">{{team2code}} <img src="/images/128/{{team2}}.png" alt=""></td>
+		<td class="team team2"><span class="code">{{team2code}}</span> <img src="/images/128/{{team2}}.png" alt=""></td>
 		{{#if currentUser}}
 		<td class="score prediction">
 			<input value="{{team1goals_prediction}}" type="number" data-field="team1goals"> -
