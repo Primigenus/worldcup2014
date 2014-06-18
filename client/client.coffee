@@ -78,7 +78,7 @@ Template.leaderboard.currentMatchPrediction = ->
 	before = new Date(now - 1000 * 60 * 120)
 	currentMatch = Matches.findOne $and: [{date: $lte: now}, {date: $gte: before}]
 	if currentMatch
-		prediction = Meteor.user().profile.predictions[currentMatch._id]
+		prediction = @profile.predictions[currentMatch._id]
 		prediction.team1goals + " - " + prediction.team2goals
 
 
