@@ -8,7 +8,7 @@ Meteor.users.after.update (userId, doc, fieldNames, modifier, options) ->
 
 recalcPoints = (user) ->
 	points = 0
-	for matchId, predictedGoals of user.profile.predictions
+	for matchId, predictedGoals of user?.profile.predictions
 		match = Matches.findOne(matchId)
 		continue unless match
 
@@ -45,14 +45,14 @@ Meteor.startup ->
 
 		if currentMatch
 			HTTP.get "http://worldcup.sfg.io/matches/current", (err, res) ->
-				if res.length
-					Matches.update currentMatch._id, { $set: team1goals: res[0].home_team.goals, team2goals: res[0].away_team.goals }
+				if res.data.length
+					Matches.update currentMatch._id, { $set: team1goals: res.data[0].home_team.goals, team2goals: res.data[0].away_team.goals }
 	, 10000
 
 	Matches.after.update (userId, doc, fieldNames, modifier, options) ->
-		user = Meteor.users.findOne userId
-		points = recalcPoints user
-		Meteor.users.update userId, $set: "profile.points": points
+		_.each Meteor.users.find().fetch(), (user) ->
+			points = recalcPoints user
+			Meteor.users.update userId, $set: "profile.points": points
 
 Meteor.users.allow
 	update: (userId, doc, fieldNames, modifier) ->

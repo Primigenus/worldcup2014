@@ -1,8 +1,7 @@
 font = Lato, "Helvetica Neue", Helvetica, Arial, sans-serif
 
 body
-	width 700px
-	margin 2em auto
+	margin 0
 	font-family font
 	font-weight 100
 
@@ -18,12 +17,19 @@ input[type='number']
 	width 25px
 	text-align center
 	font-family font
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button
+	-webkit-appearance none
+	margin 0
 input[disabled]
 	color #999
 	background #eee
 	border solid 1px #ccc
 
 header
+	position absolute
+	top 1em
+	right 1em
 	img
 		width 35px
 		height 50px
@@ -33,6 +39,8 @@ header
 table
 	width 100%
 	border solid 2px #ccc
+	border-collapse collapse
+	border-spacing 0
 
 	caption
 		background #ddd
@@ -78,52 +86,39 @@ table
 		font-weight 400
 
 section
-	background #eee
-	margin 2em 0
-
-	&:after
-		display block
-		content "."
-		color white
-		clear both
-		height 0
-
+	margin 0 auto 2em auto
+	width 750px
 
 #currentMatch
-	float left
-	width 450px
+	margin 0 auto
 	text-align center
+	padding 4em 4em 2em
 
 	table
-		width 100%
+		width 500px
 		border none
 		margin 0 auto
 
 		td
 			width 33%
 			text-align left
+			font-size 24px
 		td:nth-child(2)
 			text-align center
 		td:last-child
 			text-align right
 
-	h2
-		display inline-block
-		border-radius 50px
-		background #ccc
-		padding 5px
-
 	img
-		width 32px
-		height 32px
+		width 64px
+		height 64px
 
 	input
 		font-size 24px
 		width 40px
+		background none
+		border none
 
 #leaderboard
-	float right
-	width 250px
 	margin 0 auto
 	text-align center
 
@@ -131,3 +126,18 @@ section
 		margin 0
 		padding 0
 		list-style-position inside
+
+.tabs
+	list-style none
+	margin 0
+	padding 0
+
+	li
+		display inline-block
+		margin 0 10px 0 0
+		background #eee
+		padding 4px 8px
+		cursor pointer
+
+		&:hover
+			background #ddd

@@ -5,21 +5,22 @@
 
 <body>
 	<header>
-		<img src="http://static.q42.nl/images/q42-logo.svg" alt="Q42">
-		Q42 World Cup betting pool<br>
-		{{#if currentUser}}Hallo met {{/if}}
 		{{> loginButtons}}
 		<!-- {{> predictionDetails}} -->
 	</header>
 
 	<section>
 		{{> currentMatch}}
+	</section>
+	<section>
 		{{> leaderboard}}
 	</section>
-
-	{{> groups}}
-
-	{{> finals}}
+	<section>
+		{{> groups}}
+	</section>
+	<section>
+		{{> finals}}
+	</section>
 </body>
 
 <template name="finals">
@@ -64,6 +65,18 @@
 			<col width=100><col width=100><col width=250><col width=150><col width=250>
 			{{#if currentUser}}<col class="prediction">{{/if}}
 		</colgroup>
+		<caption><b>Losers' Final</b> (predicted)</caption>
+		<tbody>
+			{{#each losersFinal}}
+				{{> matchRow}}
+			{{/each}}
+		</tbody>
+	</table>
+	<table>
+		<colgroup>
+			<col width=100><col width=100><col width=250><col width=150><col width=250>
+			{{#if currentUser}}<col class="prediction">{{/if}}
+		</colgroup>
 		<caption><b>The Final</b> (predicted)</caption>
 		<tbody>
 			{{#each final}}
@@ -88,15 +101,18 @@
 		<ol>
 			{{#each person}}
 			<li>{{name}} ({{points}}) - {{currentMatchPrediction}}</li>
-			{{else}}
-			<li>No predictions :(</li>
 			{{/each}}
 		</ol>
 	</div>
 </template>
 
 <template name="groups">
-	{{#each group}}
+	<ul class="tabs">
+		{{#each group}}
+		<li>{{letter}}</li>
+		{{/each}}
+	</ul>
+	{{#with currentGroup}}
 		<table id="group{{letter}}">
 			<colgroup>
 				<col width=100><col width=100><col width=250><col width=150><col width=250>
@@ -118,7 +134,7 @@
 				{{/each}}
 			</tbody>
 		</table>
-	{{/each}}
+	{{/with}}
 </template>
 
 <template name="matchRow">
@@ -143,12 +159,11 @@
 <template name="currentMatch">
 	<div id="currentMatch">
 		{{#if match}}
-			<h1>Currently playing</h1>
 			{{#with match}}
 				<table>
 					<tr>
 						<td>
-							<img src="/images/128/{{team1}}.png" alt="">
+							<img src="/images/512/{{team1}}.png" alt="">
 							{{team1}}
 						</td>
 						<td>
@@ -157,18 +172,20 @@
 						</td>
 						<td>
 							{{team2}}
-							<img src="/images/128/{{team2}}.png" alt="">
+							<img src="/images/512/{{team2}}.png" alt="">
 						</td>
 					</tr>
 				</table>
 				<p>{{time}}</p>
 			{{/with}}
 		{{else}}
-			<h1>Next match</h1>
-			{{#with nextMatch}}
-				<h2><img src="/images/128/{{nextTeam1}}.png" alt=""> {{nextTeam1}} vs. {{nextTeam2}} <img src="/images/128/{{nextTeam2}}.png" alt=""></h2>
-				<h3>{{nextTime}}</h3>
-			{{/with}}
+			{{#if nextMatch}}
+				{{#with nextMatch}}
+					<h1>Next match</h1>
+					<h2><img src="/images/128/{{nextTeam1}}.png" alt=""> {{nextTeam1}} vs. {{nextTeam2}} <img src="/images/128/{{nextTeam2}}.png" alt=""></h2>
+					<h3>{{nextTime}}</h3>
+				{{/with}}
+			{{/if}}
 		{{/if}}
 	</div>
 </template>

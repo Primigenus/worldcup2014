@@ -1,14 +1,16 @@
-
-
-
 Meteor.startup ->
+	Session.setDefault "currentGroup", "A"
 	Meteor.call "getDate", (err, res) -> Session.setDefault("date", res)
 	Meteor.setInterval ->
 		Meteor.call "getDate", (err, res) -> Session.set("date", res)
 	, 1000
 
 Template.groups.group = -> Groups.find()
+Template.groups.currentGroup = -> Groups.findOne letter: Session.get("currentGroup")
 Template.groups.match = -> Matches.find type: @letter
+Template.groups.events
+	"click li": (evt) ->
+		Session.set "currentGroup", $(evt.target).text()
 
 # todo: we can calculate this based on match score predictions
 Template.groups.winner1_prediction = ->
@@ -23,6 +25,7 @@ Template.groups.winner2_prediction = ->
 Template.finals.eighthFinal 	= -> Matches.find({type: "1/8"}, sort: type: -1)
 Template.finals.quarterFinal 	= -> Matches.find({type: "1/4"}, sort: type: -1)
 Template.finals.semiFinal 		= -> Matches.find({type: "1/2"}, sort: type: -1)
+Template.finals.losersFinal   = -> Matches.find({type: "3/4"}, sort: type: -1)
 Template.finals.final 				= -> Matches.find({type: "1/1"}, sort: type: -1)
 
 
