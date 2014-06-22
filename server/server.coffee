@@ -1,10 +1,40 @@
-Meteor.users.after.update (userId, doc, fieldNames, modifier, options) ->
-	return unless userId
+Meteor.startup ->
+	Meteor.setInterval ->
+		now = new Date()
+		before = new Date(now - 1000 * 60 * 120)
+		currentMatch = Matches.findOne $and: [{date: $lte: now}, {date: $gte: before}]
 
-	points = recalcPoints doc
+		if currentMatch
+			HTTP.get "http://worldcup.sfg.io/matches/current", (err, res) ->
+				if res?.data.length
+					Matches.update currentMatch._id, { $set: team1goals: res.data[0].home_team.goals, team2goals: res.data[0].away_team.goals }
+	, 10000
 
-	if points isnt this.previous.profile.points
-		Meteor.users.update userId, $set: "profile.points": points
+	Meteor.users.after.update (userId, doc, fieldNames, modifier, options) ->
+		return unless userId
+		points = recalcPoints doc
+		if points isnt this.previous.profile.points
+			Meteor.users.update userId, $set: "profile.points": points
+
+	Matches.after.update (userId, doc, fieldNames, modifier, options) ->
+		_.each Meteor.users.find().fetch(), (user) ->
+			points = recalcPoints user
+			Meteor.users.update user._id, $set: "profile.points": points
+
+Meteor.users.allow
+	update: (userId, doc, fieldNames, modifier) ->
+		return no unless userId
+		return no if userId isnt doc._id
+		yes
+
+Accounts.config
+	restrictCreationByEmailDomain: 'q42.nl'
+
+Accounts.onCreateUser (options, user) ->
+	if options.profile
+		options.profile.predictions = {}
+		user.profile = options.profile
+	user
 
 recalcPoints = (user) ->
 	points = 0
@@ -35,39 +65,6 @@ recalcPoints = (user) ->
 		# more: https://docs.google.com/a/q42.nl/document/d/1kxvBSlTZ9Mjbd6F-alhszRAyak5CWG2u-FuCeZc_XBg/edit
 
 	points
-
-
-Meteor.startup ->
-	Meteor.setInterval ->
-		now = new Date()
-		before = new Date(now - 1000 * 60 * 120)
-		currentMatch = Matches.findOne $and: [{date: $lte: now}, {date: $gte: before}]
-
-		if currentMatch
-			HTTP.get "http://worldcup.sfg.io/matches/current", (err, res) ->
-				if res.data.length
-					Matches.update currentMatch._id, { $set: team1goals: res.data[0].home_team.goals, team2goals: res.data[0].away_team.goals }
-	, 10000
-
-	Matches.after.update (userId, doc, fieldNames, modifier, options) ->
-		_.each Meteor.users.find().fetch(), (user) ->
-			points = recalcPoints user
-			Meteor.users.update userId, $set: "profile.points": points
-
-Meteor.users.allow
-	update: (userId, doc, fieldNames, modifier) ->
-		return no unless userId
-		return no if userId isnt doc._id
-		yes
-
-Accounts.config
-	restrictCreationByEmailDomain: 'q42.nl'
-
-Accounts.onCreateUser (options, user) ->
-	if options.profile
-		options.profile.predictions = {}
-		user.profile = options.profile
-	user
 
 calcRanking = (type) ->
 	matchesInGroup = Matches.find(type: type).fetch()
