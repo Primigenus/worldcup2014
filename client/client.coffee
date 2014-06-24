@@ -6,6 +6,7 @@ Meteor.startup ->
 	, 1000
 
 Template.groups.group = -> Groups.find()
+Template.groups.selected = -> if Session.equals("currentGroup", @letter) then "selected" else ""
 Template.groups.currentGroup = -> Groups.findOne letter: Session.get("currentGroup")
 Template.groups.match = -> Matches.find type: @letter
 Template.groups.events
@@ -91,13 +92,15 @@ Template.currentMatch.match = ->
 	now = Session.get("date")
 	before = new Date(now - 1000 * 60 * 120)
 	Matches.findOne $and: [{date: $lte: now}, {date: $gte: before}]
-# it's halftime if the match started between 45 and 60 mins ago
 Template.currentMatch.team1 = -> Teams.findOne(_id: @team1).name
 Template.currentMatch.team2 = -> Teams.findOne(_id: @team2).name
+# it's halftime if the match started between 45 and 60 mins ago
 Template.currentMatch.time = ->
 	time = moment(Session.get("date") - @date)
 	if time > 1000 * 60 * 45 and time < 1000 * 60 * 60
 		return "halftime!"
+	if time > 1000 * 60 * 60
+		return (time.minutes() + 45) + ":" + time.seconds()
 	time.format "mm:ss"
 
 Template.currentMatch.nextMatch = -> Matches.findOne({date: $gte: new Date()}, {sort: date: 1})

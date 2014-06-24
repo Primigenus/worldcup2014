@@ -87,7 +87,8 @@ table
 
 section
 	margin 0 auto 2em auto
-	width 750px
+	max-width 750px
+	min-width 380px
 
 #currentMatch
 	margin 0 auto
@@ -139,5 +140,17 @@ section
 		padding 4px 8px
 		cursor pointer
 
-		&:hover
+		&:hover, &.selected
 			background #ddd
+
+
+
+
+
+@media all and (max-width: 510px)
+	#currentMatch
+		h2
+			font-size 16px
+		img
+			width 32px
+			height 32px
