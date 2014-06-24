@@ -73,7 +73,7 @@ Template.matchRow.events
 
 
 
-Template.leaderboard.person = -> Meteor.users.find({}, sort: "profile.points": -1)
+Template.leaderboard.person = -> Meteor.users.find({"profile.points": $gt: 0}, sort: "profile.points": -1)
 Template.leaderboard.name = -> @services.google.given_name
 Template.leaderboard.points = -> @profile.points or 0
 Template.leaderboard.currentMatchPrediction = ->
