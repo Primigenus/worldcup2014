@@ -99,7 +99,7 @@ calcRanking = (type) ->
 
 	_.object(_.pairs(groupRanking).sort((a, b) -> return -(a[1] - b[1])))
 
-getPredictedGroupRanking = ->
+getPredictedGroupRanking = (type) ->
 	matchesInGroup = Matches.find(type: type).fetch()
 	predictedGroupRanking = {}
 	for match in matchesInGroup
@@ -173,7 +173,7 @@ Meteor.methods
 
 		updateObj = {}
 		updateObj["profile.predictions.#{id}.#{field}"] = value
-		predictedGroupRanking = getPredictedGroupRanking()		
+		predictedGroupRanking = getPredictedGroupRanking type
 		groupId = Groups.findOne(letter: type)._id
 		updateObj["profile.predictions.#{groupId}.winner1"] = _.keys(predictedGroupRanking)[0]
 		updateObj["profile.predictions.#{groupId}.winner2"] = _.keys(predictedGroupRanking)[1]
