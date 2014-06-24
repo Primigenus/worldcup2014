@@ -26,15 +26,28 @@ input[disabled]
 	background #eee
 	border solid 1px #ccc
 
+.card
+	width 10px
+	height 1em
+	vertical-align middle
+	display inline-block
+	background #eee
+	&.red
+		background red
+	&.yellow
+		background #ee0
+
 header
-	position absolute
-	top 1em
-	right 1em
+	padding 1em
+	text-align right
 	img
 		width 35px
 		height 50px
 		float left
 		margin 0 10px 0 0
+	#details
+		float left
+		padding 3px 0
 
 table
 	width 100%
@@ -93,10 +106,10 @@ section
 #currentMatch
 	margin 0 auto
 	text-align center
-	padding 4em 4em 2em
+	padding 2em
 
 	table
-		width 500px
+		width 100%
 		border none
 		margin 0 auto
 
@@ -104,6 +117,7 @@ section
 			width 33%
 			text-align left
 			font-size 24px
+			white-space nowrap
 		td:nth-child(2)
 			text-align center
 		td:last-child
@@ -124,9 +138,32 @@ section
 	text-align center
 
 	ol
-		margin 0
-		padding 0
-		list-style-position inside
+		max-width 300px
+		margin 0 auto
+		background #eee
+		padding 3px 0
+		list-style-position outside
+
+		li.moving
+			-webkit-animation swap linear .3s
+
+		li
+			text-align left
+			margin 0 0 4px 0
+			.points
+				width 50px
+				text-align center
+				background #ddd
+				padding 4px
+				border-radius 50%
+
+@-webkit-keyframes swap
+	from
+		opacity 0
+	50%
+		opacity 1
+	to
+		opacity 0
 
 .tabs
 	list-style none
@@ -135,9 +172,9 @@ section
 
 	li
 		display inline-block
-		margin 0 10px 0 0
+		margin 0 2px 0 0
 		background #eee
-		padding 4px 8px
+		padding 4px 1em
 		cursor pointer
 
 		&:hover, &.selected
@@ -149,7 +186,7 @@ section
 
 @media all and (max-width: 510px)
 	#currentMatch
-		h2
+		h2, table td
 			font-size 16px
 		img
 			width 32px

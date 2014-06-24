@@ -72,6 +72,14 @@ Template.matchRow.events
 		Meteor.call "updatePredictions", @_id, @type, field, value
 
 
+Template.predictionDetails.predictions = -> Meteor.user()?.profile.predictions
+Template.predictionDetails.events
+	"blur input": (evt) ->
+		field = $(evt.target).data('field')
+		value = $(evt.target).val()
+		Meteor.call "updatePredictionDetails", field, value
+
+
 
 
 Template.leaderboard.person = -> Meteor.users.find({"profile.points": $gt: 0}, sort: "profile.points": -1)
@@ -84,6 +92,15 @@ Template.leaderboard.currentMatchPrediction = ->
 	if currentMatch
 		prediction = @profile.predictions[currentMatch._id]
 		prediction.team1goals + " - " + prediction.team2goals
+Template.leaderboard.rendered = ->
+	$("#leaderboard").prop "_uihooks", {
+		moveElement: (node, next) ->
+			$(node).addClass "moving"
+			Meteor.setTimeout ->
+				$(node).before(next)
+				$(node).removeClass "moving"
+			, 300
+	}
 
 
 

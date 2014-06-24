@@ -62,6 +62,12 @@ recalcPoints = (user) ->
 		# todo: if this is a final and the match is a draw, the user can also predict who wins on penalties
 		# if so they get +3 points
 
+		# todo: predict world cup winner:     +50
+		# todo: predict exact # yellow cards: +25
+		# todo: predict exact # red cards:    +25
+		# todo: predict exact # goals: 				+25
+		# todo: predict top goal scorer: 			+25
+
 		# todo: user can predict who plays in which final
 		# more: https://docs.google.com/a/q42.nl/document/d/1kxvBSlTZ9Mjbd6F-alhszRAyak5CWG2u-FuCeZc_XBg/edit
 
@@ -93,8 +99,43 @@ calcRanking = (type) ->
 
 	_.object(_.pairs(groupRanking).sort((a, b) -> return -(a[1] - b[1])))
 
+getPredictedGroupRanking = ->
+	matchesInGroup = Matches.find(type: type).fetch()
+	predictedGroupRanking = {}
+	for match in matchesInGroup
+		predictedGoals = Meteor.user().profile.predictions?[match._id]
+		predictedGoals = {team1goals: 0, team2goals: 0} unless predictedGoals
+
+		if predictedGoals.team1goals > predictedGoals.team2goals
+			if predictedGroupRanking[match.team1]
+				predictedGroupRanking[match.team1] += 3
+			else
+				predictedGroupRanking[match.team1] = 3
+		else if predictedGoals.team1goals is predictedGoals.team2goals
+			if predictedGroupRanking[match.team1]
+				predictedGroupRanking[match.team1] += 1
+			else
+				predictedGroupRanking[match.team1] = 1
+			if predictedGroupRanking[match.team2]
+				predictedGroupRanking[match.team2] += 1
+			else
+				predictedGroupRanking[match.team2] = 1
+		else
+			if predictedGroupRanking[match.team2]
+				predictedGroupRanking[match.team2] += 3
+			else
+				predictedGroupRanking[match.team2] = 3
+
+	_.object(_.pairs(predictedGroupRanking).sort((a, b) -> return -(a[1] - b[1])))
+
 Meteor.methods
 	getDate: -> new Date()
+
+	updatePredictionDetails: (field, value) ->
+		return unless @userId
+		updateObj = {}
+		updateObj["profile.predictions.#{field}"] = value
+		Meteor.users.update @userId, $set: updateObj
 
 	calcRankings: ->
 		letters = "ABCDEFGH".split("")
@@ -128,42 +169,16 @@ Meteor.methods
 		Matches.update id, $set: updateObj
 
 	updatePredictions: (id, type, field, value) ->
+		return unless @userId
+
 		updateObj = {}
 		updateObj["profile.predictions.#{id}.#{field}"] = value
-
-		matchesInGroup = Matches.find(type: type).fetch()
-		predictedGroupRanking = {}
-		for match in matchesInGroup
-			predictedGoals = Meteor.user().profile.predictions?[match._id]
-			predictedGoals = {team1goals: 0, team2goals: 0} unless predictedGoals
-
-			if predictedGoals.team1goals > predictedGoals.team2goals
-				if predictedGroupRanking[match.team1]
-					predictedGroupRanking[match.team1] += 3
-				else
-					predictedGroupRanking[match.team1] = 3
-			else if predictedGoals.team1goals is predictedGoals.team2goals
-				if predictedGroupRanking[match.team1]
-					predictedGroupRanking[match.team1] += 1
-				else
-					predictedGroupRanking[match.team1] = 1
-				if predictedGroupRanking[match.team2]
-					predictedGroupRanking[match.team2] += 1
-				else
-					predictedGroupRanking[match.team2] = 1
-			else
-				if predictedGroupRanking[match.team2]
-					predictedGroupRanking[match.team2] += 3
-				else
-					predictedGroupRanking[match.team2] = 3
-
-		predictedGroupRanking = _.object(_.pairs(predictedGroupRanking).sort((a, b) -> return -(a[1] - b[1])))
-
+		predictedGroupRanking = getPredictedGroupRanking()		
 		groupId = Groups.findOne(letter: type)._id
 		updateObj["profile.predictions.#{groupId}.winner1"] = _.keys(predictedGroupRanking)[0]
 		updateObj["profile.predictions.#{groupId}.winner2"] = _.keys(predictedGroupRanking)[1]
 
-		Meteor.users.update this.userId, $set: updateObj
+		Meteor.users.update @userId, $set: updateObj
 
 	insertTeams: ->
 

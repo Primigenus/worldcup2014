@@ -5,8 +5,8 @@
 
 <body>
 	<header>
+		{{> predictionDetails}}
 		{{> loginButtons}}
-		<!-- {{> predictionDetails}} -->
 	</header>
 
 	<section>
@@ -87,20 +87,21 @@
 </template>
 
 <template name="predictionDetails">
-	<ul id="details">
-		<li># yellow cards: {{numYellowCards}}</li>
-		<li># red cards: {{numRedCards}}</li>
-		<li>most goals: {{mostGoals}}</li>
-		<li># goals: {{numGoals}}</li>
-	</ul>
+	<div id="details">
+		{{#with predictions}}
+		<span class="card yellow"></span> <input type="number" value="{{numYellowCards}}" data-field="numYellowCards">
+		<span class="card red"></span> <input type="number" value="{{numRedCards}}" data-field="numRedCards">
+		# goals: <input type="number" value="{{numGoals}}" data-field="numGoals">
+		top scorer: <input value="{{mostGoals}}" data-field="mostGoals">
+		{{/with}}
+	</div>
 </template>
 
 <template name="leaderboard">
 	<div id="leaderboard">
-		<h2>Leaderboard</h2>
 		<ol>
 			{{#each person}}
-			<li>{{name}} ({{points}}){{#if currentMatchPrediction}} - {{currentMatchPrediction}}{{/if}}</li>
+			<li><span class="points">{{points}}</span> {{name}} <span class="pred">{{currentMatchPrediction}}</span></li>
 			{{/each}}
 		</ol>
 	</div>
