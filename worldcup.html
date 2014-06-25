@@ -94,6 +94,14 @@
 		# goals: <input type="number" value="{{numGoals}}" data-field="numGoals">
 		top scorer: <input value="{{mostGoals}}" data-field="mostGoals">
 		{{/with}}
+		<div id="facts">
+		{{#with facts}}
+			<span class="card yellow"></span> {{numYellowCards}}
+			<span class="card red"></span> {{numRedCards}}
+			# goals: {{numGoals}}
+			top scorer: {{topScorer}}
+		{{/with}}
+		</div>
 	</div>
 </template>
 

@@ -73,6 +73,7 @@ Template.matchRow.events
 
 
 Template.predictionDetails.predictions = -> Meteor.user()?.profile.predictions
+Template.predictionDetails.facts = -> Facts.findOne()
 Template.predictionDetails.events
 	"blur input": (evt) ->
 		field = $(evt.target).data('field')

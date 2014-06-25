@@ -48,6 +48,12 @@ header
 	#details
 		float left
 		padding 3px 0
+		text-align left
+
+		#facts
+			opacity .7
+			color #999
+			font-size smaller	
 
 table
 	width 100%
@@ -163,6 +169,13 @@ section
 				color black
 			.name, .pred
 				color black
+
+			&.nth-child(1) .points
+				background gold
+			&.nth-child(2) .points
+				background silver
+			&.nth-child(3) .points
+				background bronze
 
 @-webkit-keyframes swap
 	from

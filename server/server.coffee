@@ -10,6 +10,44 @@ Meteor.startup ->
 					Matches.update currentMatch._id, { $set: team1goals: res.data[0].home_team.goals, team2goals: res.data[0].away_team.goals }
 	, 10000
 
+	if Facts.find().count() is 0
+		Facts.insert
+			numYellowCards: 0
+			numRedCards: 0
+			numGoals: 0
+			topScorer: null
+
+	Meteor.setInterval ->
+		HTTP.get "http://worldcup.sfg.io/matches", (err, res) ->
+			if res?.data.length
+				types = ["goal", "goal-own", "goal-penalty", "red-card", "yellow-card"]
+
+				interestingEvents = _.reduce res.data, ((memo, match) ->
+					events = match.home_team_events.concat(match.away_team_events)
+					events = _.filter events, (e) -> e.type_of_event in types
+					memo.concat(events)
+				), []
+
+				getTotal = (type) -> _.reduce interestingEvents, ((memo, event) ->
+					if event.type_of_event is type
+						return memo + 1
+					memo
+				), 0
+
+				scorers = _.countBy interestingEvents, (event) ->
+					event.player if event.type_of_event in ["goal", "goal-own", "goal-penalty"]
+				scorers = _.pairs(scorers).sort((a, b) -> -(a[1] - b[1]))
+				scorers = _.reject scorers, (scorer) -> scorer[0] is "undefined"
+				topScorer = scorers[0][0]
+
+				Facts.upsert Facts.findOne()._id, $set: {
+					numYellowCards: getTotal("yellow-card")
+					numRedCards: getTotal("red-card")
+					numGoals: getTotal("goal") + getTotal("goal-penalty") + getTotal("goal-own")
+					topScorer: topScorer
+				}
+	, 10000
+
 	Meteor.users.after.update (userId, doc, fieldNames, modifier, options) ->
 		return unless userId
 		points = recalcPoints doc
@@ -97,7 +135,7 @@ calcRanking = (type) ->
 			else
 				groupRanking[match.team2] = 3
 
-	_.object(_.pairs(groupRanking).sort((a, b) -> return -(a[1] - b[1])))
+	_.object(_.pairs(groupRanking).sort((a, b) -> -(a[1] - b[1])))
 
 getPredictedGroupRanking = (type) ->
 	matchesInGroup = Matches.find(type: type).fetch()
