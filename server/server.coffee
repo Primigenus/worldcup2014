@@ -1,3 +1,5 @@
+Kadira.connect('pmgzKB7ZJLazunxCz', '68653150-de49-4483-bb8d-9c9a8c31a098')
+
 Meteor.startup ->
 	Meteor.setInterval ->
 		now = new Date()
@@ -19,7 +21,7 @@ Meteor.startup ->
 
 	Meteor.setInterval ->
 		HTTP.get "http://worldcup.sfg.io/matches", (err, res) ->
-			if res?.data.length
+			if res?.data?.length
 				types = ["goal", "goal-own", "goal-penalty", "red-card", "yellow-card"]
 
 				interestingEvents = _.reduce res.data, ((memo, match) ->

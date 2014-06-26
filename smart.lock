@@ -3,7 +3,8 @@
   "dependencies": {
     "basePackages": {
       "moment": {},
-      "collection-hooks": {}
+      "collection-hooks": {},
+      "kadira": {}
     },
     "packages": {
       "moment": {
@@ -15,6 +16,11 @@
         "git": "https://github.com/matb33/meteor-collection-hooks.git",
         "tag": "v0.7.0",
         "commit": "20a6de81f3818f112bccf67b5e1d3db342cf0b18"
+      },
+      "kadira": {
+        "git": "https://github.com/meteorhacks/kadira.git",
+        "tag": "v2.4.4",
+        "commit": "6073fa5bdfb36478165977804f922796b6fc82de"
       }
     }
   }
