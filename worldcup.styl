@@ -4,6 +4,13 @@ body
 	margin 0
 	font-family font
 	font-weight 100
+	background -webkit-linear-gradient(top, transparent, rgba(255,255,255,.8) 600px), url(http://www.forzaarena.com/img/forza/1.jpg)
+	background -moz-linear-gradient(top, transparent, rgba(255,255,255,.8) 600px), url(http://www.forzaarena.com/img/forza/1.jpg)
+	background -ms-linear-gradient(top, transparent, rgba(255,255,255,.8) 600px), url(http://www.forzaarena.com/img/forza/1.jpg)
+	background linear-gradient(top, transparent, rgba(255,255,255,.8) 600px), url(http://www.forzaarena.com/img/forza/1.jpg)
+	background-color #9c9
+	background-size cover
+	background-repeat no-repeat
 
 #login-buttons *
 	font-family font !important
@@ -13,29 +20,39 @@ img
 	width 16px
 	height 16px
 
+input
+	font-family font
+	border none
+	background rgba(255,255,255,.8)
 input[type='number']
 	width 25px
 	text-align center
-	font-family font
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button
 	-webkit-appearance none
 	margin 0
 input[disabled]
 	color #999
-	background #eee
-	border solid 1px #ccc
+	background #fff
+	border none
+
+h1, h3
+	color rgba(0,0,0,.7)
+h2
+	text-transform uppercase
+h3
+	font-weight 100
 
 .card
 	width 10px
 	height 1em
 	vertical-align middle
 	display inline-block
-	background #eee
+	background #fff
 	&.red
 		background red
 	&.yellow
-		background #ee0
+		background gold
 
 header
 	padding 1em
@@ -45,26 +62,32 @@ header
 		height 50px
 		float left
 		margin 0 10px 0 0
-	#details
-		float left
-		padding 3px 0
-		text-align left
 
-		#facts
-			opacity .7
-			color #999
-			font-size smaller	
+#details
+	max-width 300px
+	margin 0 auto 2em auto
+	text-align left
+	font-size smaller
+
+	th:first-child
+		white-space nowrap
+	td:last-child input
+		width 60px
+
+	#facts
+		opacity .5
 
 table
 	width 100%
-	border solid 2px #ccc
+	border none
 	border-collapse collapse
 	border-spacing 0
 
 	caption
-		background #ddd
-		color #999
-		padding 4px
+		background rgba(255,255,255,.8)
+		border-bottom solid 1px rgba(0,0,0,.1)
+		color rgba(0,0,0,.5)
+		padding 1em
 		text-align left
 
 		b
@@ -73,18 +96,21 @@ table
 		.inputs
 			margin-left 3em
 
-	col
-		&.prediction
-			background #eee
-
 	thead th
-		color #999
+		text-align center
+		color rgba(0,0,0,.5)
+		font-weight normal
 		font-size 12px
-		background #eee
-		padding 3px 0
+		background rgba(255,255,255,.8)
+		padding 5px
+
+	tbody tr
+		border-bottom solid 1px rgba(0,0,0,.1)
+		background rgba(255,255,255,.5)
 
 	tbody td
 		white-space nowrap
+		padding 3px
 
 	.current
 		background #ffff54
@@ -105,14 +131,14 @@ table
 		font-weight 400
 
 section
-	margin 0 auto 2em auto
+	margin 0 auto
 	max-width 750px
 	min-width 380px
 
 #currentMatch
-	margin 0 auto
 	text-align center
-	padding 2em
+	margin 0 auto
+	padding 1em
 
 	table
 		width 100%
@@ -133,6 +159,11 @@ section
 		width 64px
 		height 64px
 
+		&:first-child
+			margin-right 1em
+		&:last-child
+			margin-left 1em
+
 	input
 		font-size 24px
 		width 40px
@@ -140,25 +171,25 @@ section
 		border none
 
 #leaderboard
-	margin 0 auto
+	margin 0 auto 2em auto
+	padding 1em
 	text-align center
 
 	ol
 		max-width 300px
 		margin 0 auto
 		padding 3px 0
-		list-style-position outside
+		list-style none
 
 		li.moving
 			-webkit-animation swap linear .3s
 
 		li
-			background #eee
+			background rgba(255,255,255,.5)
 			text-align left
-			padding 2px 0
+			padding 2px 0 2px 4px
 			margin 0 0 4px 0
-			border-radius 10px
-			color #999
+			color rgba(0,0,0,.5)
 			.points
 				width 50px
 				text-align center
@@ -170,11 +201,11 @@ section
 			.name, .pred
 				color black
 
-			&.nth-child(1) .points
+			&:nth-child(1) .points
 				background gold
-			&.nth-child(2) .points
+			&:nth-child(2) .points
 				background silver
-			&.nth-child(3) .points
+			&:nth-child(3) .points
 				background bronze
 
 @-webkit-keyframes swap
@@ -193,12 +224,12 @@ section
 	li
 		display inline-block
 		margin 0 2px 0 0
-		background #eee
+		background rgba(255,255,255,.5)
 		padding 4px 1em
 		cursor pointer
 
 		&:hover, &.selected
-			background #ddd
+			background rgba(255,255,255,.8)
 
 
 

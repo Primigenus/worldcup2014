@@ -5,7 +5,6 @@
 
 <body>
 	<header>
-		{{> predictionDetails}}
 		{{> loginButtons}}
 	</header>
 
@@ -14,6 +13,7 @@
 	</section>
 	<section>
 		{{> leaderboard}}
+		{{> predictionDetails}}
 	</section>
 	<section>
 		{{> groups}}
@@ -88,20 +88,40 @@
 
 <template name="predictionDetails">
 	<div id="details">
-		{{#with predictions}}
-		<span class="card yellow"></span> <input type="number" value="{{numYellowCards}}" data-field="numYellowCards">
-		<span class="card red"></span> <input type="number" value="{{numRedCards}}" data-field="numRedCards">
-		# goals: <input type="number" value="{{numGoals}}" data-field="numGoals">
-		top scorer: <input value="{{mostGoals}}" data-field="mostGoals">
-		{{/with}}
-		<div id="facts">
-		{{#with facts}}
-			<span class="card yellow"></span> {{numYellowCards}}
-			<span class="card red"></span> {{numRedCards}}
-			# goals: {{numGoals}}
-			top scorer: {{topScorer}}
-		{{/with}}
-		</div>
+		<table>
+			<colgroup>
+				<col width=100><col width=50><col width=50><col width=50><col width=150>
+			</colgroup>
+			<thead>
+				<tr>
+					<th></th>
+					<th><span class="card yellow"></span></th>
+					<th><span class="card red"></span></th>
+					<th>Goals</th>
+					<th>Top scorer</th>
+				</tr>
+			</thead>
+			<tbody>
+			{{#with predictions}}
+				<tr>
+					<th>Predicted</th>
+					<td class="score"><input type="number" value="{{numYellowCards}}" data-field="numYellowCards"></td>
+					<td class="score"><input type="number" value="{{numRedCards}}" data-field="numRedCards"></td>
+					<td class="score"><input type="number" value="{{numGoals}}" data-field="numGoals"></td>
+					<td class="score"><input value="{{mostGoals}}" data-field="mostGoals"></td>
+				</tr>
+			{{/with}}
+			{{#with facts}}
+				<tr id="facts">
+					<th>Actual</th>
+					<td class="score"><input disabled type="number" value="{{numYellowCards}}"></td>
+					<td class="score"><input disabled type="number" value="{{numRedCards}}"></td>
+					<td class="score"><input disabled type="number" value="{{numGoals}}"></td>
+					<td class="score"><input disabled value="{{topScorer}}"></td>
+				</tr>
+			{{/with}}
+			</tbody>
+		</table>
 	</div>
 </template>
 

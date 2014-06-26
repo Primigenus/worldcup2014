@@ -121,15 +121,11 @@ Template.currentMatch.time = ->
 		return (time.minutes() + 45) + ":" + time.seconds()
 	time.format "mm:ss"
 
-Template.currentMatch.nextMatch = -> Matches.findOne({date: $gte: new Date()}, {sort: date: 1})
-Template.currentMatch.nextTeam1 = ->
-	teamId = Matches.findOne({date: $gte: new Date()}, {sort: date: 1}).team1
-	Teams.findOne(_id: teamId).name if teamId
-Template.currentMatch.nextTeam2 = ->
-	teamId = Matches.findOne({date: $gte: new Date()}, {sort: date: 1}).team2
-	Teams.findOne(_id: teamId).name if teamId
+Template.currentMatch.nextMatch = -> Matches.findOne {date: $gte: new Date()}, {sort: date: 1}
+Template.currentMatch.nextTeam1 = -> Teams.findOne(_id: @team1).name
+Template.currentMatch.nextTeam2 = -> Teams.findOne(_id: @team2).name
 Template.currentMatch.nextTime = -> # gadget, next time...
-	moment(Matches.findOne({date: $gte: new Date()}, {sort: date: 1}).date).format "dddd, MMMM DD\\t\\h \\a\\t HH:mm"
+	moment(@date).format "dddd, MMMM DD\\t\\h \\a\\t HH:mm"
 
 Template.currentMatch.events
 	input: (evt) ->
