@@ -23,11 +23,11 @@ Template.groups.winner2_prediction = ->
 
 
 
-Template.finals.eighthFinal 	= -> Matches.find({type: "1/8"}, sort: type: -1)
-Template.finals.quarterFinal 	= -> Matches.find({type: "1/4"}, sort: type: -1)
-Template.finals.semiFinal 		= -> Matches.find({type: "1/2"}, sort: type: -1)
-Template.finals.losersFinal   = -> Matches.find({type: "3/4"}, sort: type: -1)
-Template.finals.final 				= -> Matches.find({type: "1/1"}, sort: type: -1)
+Template.finals.eighthFinal 	= -> Matches.find({type: "1/8"}, sort: date: 1)
+Template.finals.quarterFinal 	= -> Matches.find({type: "1/4"}, sort: date: 1)
+Template.finals.semiFinal 		= -> Matches.find({type: "1/2"}, sort: date: 1)
+Template.finals.losersFinal   = -> Matches.find({type: "3/4"}, sort: date: 1)
+Template.finals.final 				= -> Matches.find({type: "1/1"}, sort: date: 1)
 
 
 
@@ -40,9 +40,9 @@ Template.matchRow.date  = -> moment(@date).format("DD MMM")
 Template.matchRow.time  = ->
 	time = moment(@date).format("HH:mm")
 	time
-Template.matchRow.team1 = -> Teams.findOne(_id: @team1)?.name
+Template.matchRow.team1name = -> Teams.findOne(_id: @team1)?.name
 Template.matchRow.team1code = -> Teams.findOne(_id: @team1)?.code.toUpperCase() or @team1
-Template.matchRow.team2 = -> Teams.findOne(_id: @team2)?.name
+Template.matchRow.team2name = -> Teams.findOne(_id: @team2)?.name
 Template.matchRow.team2code = -> Teams.findOne(_id: @team2)?.code.toUpperCase() or @team2
 Template.matchRow.team1goals_prediction = ->
 	return unless Meteor.user()
@@ -50,8 +50,24 @@ Template.matchRow.team1goals_prediction = ->
 Template.matchRow.team2goals_prediction = ->
 	return unless Meteor.user()
 	Meteor.user().profile.predictions?[@_id]?.team2goals
+Template.matchRow.predictWinner = ->
+	return unless Meteor.user()
+	predictions = Meteor.user().profile.predictions[@_id]
+	@type in ["1/8", "1/4", "1/2", "3/4", "1/1"] and predictions and predictions.team1goals is predictions.team2goals
+Template.matchRow.team1checked = ->
+	return false unless Meteor.user()
+	if Meteor.user().profile.predictions[@_id]?.predictedWinner is @team1 then "checked" else ""
+Template.matchRow.team2checked = ->
+	return false unless Meteor.user()
+	if Meteor.user().profile.predictions[@_id]?.predictedWinner is @team2 then "checked" else ""
 
 Template.matchRow.events
+	"change .toggleWinner": (evt) ->
+		checked = $(evt.target).prop("checked")
+		value = $(evt.target).val()
+		if checked
+			Meteor.call "updateFinalsWinner", @_id, value
+
 	"input .score:not(.prediction) input": (evt) ->
 		field = $(evt.target).data("field")
 		value = $(evt.target).val()
@@ -92,7 +108,8 @@ Template.leaderboard.currentMatchPrediction = ->
 	currentMatch = Matches.findOne $and: [{date: $lte: now}, {date: $gte: before}]
 	if currentMatch
 		prediction = @profile.predictions[currentMatch._id]
-		prediction.team1goals + " - " + prediction.team2goals
+		if prediction
+			prediction.team1goals + " - " + prediction.team2goals
 Template.leaderboard.rendered = ->
 	$("#leaderboard").prop "_uihooks", {
 		moveElement: (node, next) ->
@@ -122,10 +139,13 @@ Template.currentMatch.time = ->
 	time.format "mm:ss"
 
 Template.currentMatch.nextMatch = -> Matches.findOne {date: $gte: new Date()}, {sort: date: 1}
-Template.currentMatch.nextTeam1 = -> Teams.findOne(_id: @team1).name
-Template.currentMatch.nextTeam2 = -> Teams.findOne(_id: @team2).name
+Template.currentMatch.nextTeam1 = -> Teams.findOne(_id: @team1)?.name
+Template.currentMatch.nextTeam2 = -> Teams.findOne(_id: @team2)?.name
 Template.currentMatch.nextTime = -> # gadget, next time...
 	moment(@date).format "dddd, MMMM DD\\t\\h \\a\\t HH:mm"
+Template.currentMatch.penalties = ->
+	time = moment(Session.get("date") - @date)
+	@type in ["1/8", "1/4", "1/2", "3/4", "1/1"] and time > 1000 * 60 * 90 and @team1goals is @team2goals
 
 Template.currentMatch.events
 	input: (evt) ->

@@ -1,5 +1,5 @@
 <head>
-  <title>worldcup</title>
+  <title>Q42 World Cup 2014 Betting Pool App</title>
   <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
 </head>
 
@@ -16,10 +16,11 @@
 		{{> predictionDetails}}
 	</section>
 	<section>
-		{{> groups}}
-	</section>
-	<section>
 		{{> finals}}
+	</section>
+	<br>
+	<section>
+		{{> groups}}
 	</section>
 </body>
 
@@ -29,7 +30,7 @@
 			<col width=100><col width=100><col width=250><col width=150><col width=250>
 			{{#if currentUser}}<col class="prediction">{{/if}}
 		</colgroup>
-		<caption><b>1/8th Finals</b> (predicted)</caption>
+		<caption><b>1/8th Finals</b></caption>
 		<tbody>
 			{{#each eighthFinal}}
 				{{> matchRow}}
@@ -170,12 +171,22 @@
 	<tr class="{{isCurrentMatch}}" data-matchid="{{_id}}">
 		<td>{{date}}</td>
 		<td>{{time}}</td>
-		<td class="team team1"><img src="/images/128/{{team1}}.png" alt=""> <span class="code">{{team1code}}</span></td>
+		<td class="team team1">
+			{{#if predictWinner}}
+			<input type="radio" data-field="winner" value="{{team1}}" class="toggleWinner" title="Predict this team winning after penalties" {{team1checked}}>
+			{{/if}}
+			<img src="/images/128/{{team1name}}.png" alt=""> <span class="code">{{team1code}}</span>
+		</td>
 		<td class="score">
 			<input value="{{team1goals}}" type="number" data-field="team1goals" tabindex="-1" {{disabled}}> -
 			<input value="{{team2goals}}" type="number" data-field="team2goals" tabindex="-1" {{disabled}}>
 		</td>
-		<td class="team team2"><span class="code">{{team2code}}</span> <img src="/images/128/{{team2}}.png" alt=""></td>
+		<td class="team team2">
+			<span class="code">{{team2code}}</span> <img src="/images/128/{{team2name}}.png" alt="">
+			{{#if predictWinner}}
+			<input type="radio" data-field="winner" value="{{team2}}" class="toggleWinner" title="Predict this team winning after penalties" {{team2checked}}>
+			{{/if}}
+		</td>
 		{{#if currentUser}}
 		<td class="score prediction">
 			<input value="{{team1goals_prediction}}" type="number" data-field="team1goals"> -
@@ -204,6 +215,15 @@
 							<img src="/images/512/{{team2}}.png" alt="">
 						</td>
 					</tr>
+					{{#if penalties}}
+					<tr>
+						<td colspan="3">
+							Penalties:<br>
+							<input value="{{team1penalties}}" type="number" data-field="team1penalties"> -
+							<input value="{{team2penalties}}" type="number" data-field="team2penalties">
+						</td>
+					</tr>
+					{{/if}}
 				</table>
 				<p>{{time}}</p>
 			{{/with}}

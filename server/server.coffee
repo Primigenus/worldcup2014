@@ -9,7 +9,12 @@ Meteor.startup ->
 		if currentMatch
 			HTTP.get "http://worldcup.sfg.io/matches/current", (err, res) ->
 				if res?.data.length
-					Matches.update currentMatch._id, { $set: team1goals: res.data[0].home_team.goals, team2goals: res.data[0].away_team.goals }
+					Matches.update currentMatch._id, {
+						$set:
+							team1goals: res.data[0].home_team.goals,
+							team2goals: res.data[0].away_team.goals,
+							winnerOnPenalties: null
+					}
 	, 10000
 
 	if Facts.find().count() is 0
@@ -99,19 +104,20 @@ recalcPoints = (user) ->
 			if (mt1 > mt2 and gt1 > gt2) or (mt2 > mt1 and gt2 > gt1) or (mt2 is mt1 and gt2 is gt1)
 				points += 3
 
-	# todo: if this is a final and the match is a draw, the user can also predict who wins on penalties
-	# if so they get +3 points
+		# todo: if this is a final and the match is a draw, the user can also predict who wins on penalties
+		# if so they get +3 points
+		# if match.type in ["1/8", "1/4", "1/2", "3/4", "1/1"]
+		# 	if mt1 is mt2 and mt1 is gt1 and mt2 is gt2
+		# 		predictedGoals.predictedWinner
+
 
 	# todo: predict world cup winner:     +50
-	# todo: predict exact # yellow cards: +25
-	# todo: predict exact # red cards:    +25
-	# todo: predict exact # goals: 				+25
-	# todo: predict top goal scorer: 			+25
+
 	facts = Facts.findOne()
 	points += 25 if parseInt(user.profile.predictions.numRedCards) is facts.numRedCards
 	points += 25 if parseInt(user.profile.predictions.numYellowCards) is facts.numYellowCards
 	points += 25 if parseInt(user.profile.predictions.numGoals) is facts.numGoals
-	points += 25 if user.profile.predictions.mostGoals is facts.mostGoals
+	points += 25 if user.profile.predictions.mostGoals is facts.topScorer
 
 	# todo: user can predict who plays in which final
 	# more: https://docs.google.com/a/q42.nl/document/d/1kxvBSlTZ9Mjbd6F-alhszRAyak5CWG2u-FuCeZc_XBg/edit
@@ -191,21 +197,21 @@ Meteor.methods
 		eighthFinals = Matches.find({type: "1/8"}, {sort: date: 1}).fetch()
 
 		# 1A vs 2B
-		Matches.update(eighthFinals[0]._id, {$set: {team1: _.keys(rankings[0])[0], team2: _.keys(rankings[1])[1]}})
-		# 1C vs 2D
-		Matches.update(eighthFinals[1]._id, {$set: {team1: _.keys(rankings[2])[0], team2: _.keys(rankings[3])[1]}})
-		# 1B vs 2A
-		Matches.update(eighthFinals[2]._id, {$set: {team1: _.keys(rankings[1])[0], team2: _.keys(rankings[0])[1]}})
-		# 1D vs 2C
-		Matches.update(eighthFinals[3]._id, {$set: {team1: _.keys(rankings[3])[0], team2: _.keys(rankings[2])[1]}})
-		# 1E vs 2F
-		Matches.update(eighthFinals[4]._id, {$set: {team1: _.keys(rankings[4])[0], team2: _.keys(rankings[5])[1]}})
-		# 1G vs 2H
-		Matches.update(eighthFinals[5]._id, {$set: {team1: _.keys(rankings[6])[0], team2: _.keys(rankings[7])[1]}})
-		# 1F vs 2E
-		Matches.update(eighthFinals[6]._id, {$set: {team1: _.keys(rankings[5])[0], team2: _.keys(rankings[4])[1]}})
-		# 1H vs 2G
-		Matches.update(eighthFinals[7]._id, {$set: {team1: _.keys(rankings[7])[0], team2: _.keys(rankings[6])[1]}})
+		# Matches.update(eighthFinals[0]._id, {$set: {team1: _.keys(rankings[0])[0], team2: _.keys(rankings[1])[1]}})
+		# # 1C vs 2D
+		# Matches.update(eighthFinals[1]._id, {$set: {team1: _.keys(rankings[2])[0], team2: _.keys(rankings[3])[1]}})
+		# # 1B vs 2A
+		# Matches.update(eighthFinals[2]._id, {$set: {team1: _.keys(rankings[1])[0], team2: _.keys(rankings[0])[1]}})
+		# # 1D vs 2C
+		# Matches.update(eighthFinals[3]._id, {$set: {team1: _.keys(rankings[3])[0], team2: _.keys(rankings[2])[1]}})
+		# # 1E vs 2F
+		# Matches.update(eighthFinals[4]._id, {$set: {team1: _.keys(rankings[4])[0], team2: _.keys(rankings[5])[1]}})
+		# # 1G vs 2H
+		# Matches.update(eighthFinals[5]._id, {$set: {team1: _.keys(rankings[6])[0], team2: _.keys(rankings[7])[1]}})
+		# # 1F vs 2E
+		# Matches.update(eighthFinals[6]._id, {$set: {team1: _.keys(rankings[5])[0], team2: _.keys(rankings[4])[1]}})
+		# # 1H vs 2G
+		# Matches.update(eighthFinals[7]._id, {$set: {team1: _.keys(rankings[7])[0], team2: _.keys(rankings[6])[1]}})
 
 	updateScore: (id, field, value) ->
 		return unless @userId
@@ -213,15 +219,25 @@ Meteor.methods
 		updateObj[field] = value
 		Matches.update id, $set: updateObj
 
+	updateFinalsWinner: (id, teamId) ->
+		return unless @userId
+
+		updateObj = {}
+		updateObj["profile.predictions.#{id}.predictedWinner"] = teamId
+
+		Meteor.users.update @userId, $set: updateObj
+
 	updatePredictions: (id, type, field, value) ->
 		return unless @userId
 
 		updateObj = {}
 		updateObj["profile.predictions.#{id}.#{field}"] = value
-		predictedGroupRanking = getPredictedGroupRanking type
-		groupId = Groups.findOne(letter: type)._id
-		updateObj["profile.predictions.#{groupId}.winner1"] = _.keys(predictedGroupRanking)[0]
-		updateObj["profile.predictions.#{groupId}.winner2"] = _.keys(predictedGroupRanking)[1]
+		
+		groupId = Groups.findOne(letter: type)?._id
+		if groupId
+			predictedGroupRanking = getPredictedGroupRanking type
+			updateObj["profile.predictions.#{groupId}.winner1"] = _.keys(predictedGroupRanking)[0]
+			updateObj["profile.predictions.#{groupId}.winner2"] = _.keys(predictedGroupRanking)[1]
 
 		Meteor.users.update @userId, $set: updateObj
 
