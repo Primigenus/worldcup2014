@@ -175,6 +175,7 @@
 			{{#if predictWinner}}
 			<input type="radio" data-field="winner" value="{{team1}}" class="toggleWinner" title="Predict this team winning after penalties" {{team1checked}}>
 			{{/if}}
+			{{#if team1WinsOnPenalties}}W{{/if}}
 			<img src="/images/128/{{team1name}}.png" alt=""> <span class="code">{{team1code}}</span>
 		</td>
 		<td class="score">
@@ -183,6 +184,7 @@
 		</td>
 		<td class="team team2">
 			<span class="code">{{team2code}}</span> <img src="/images/128/{{team2name}}.png" alt="">
+			{{#if team2WinsOnPenalties}}W{{/if}}
 			{{#if predictWinner}}
 			<input type="radio" data-field="winner" value="{{team2}}" class="toggleWinner" title="Predict this team winning after penalties" {{team2checked}}>
 			{{/if}}
@@ -215,16 +217,10 @@
 							<img src="/images/512/{{team2}}.png" alt="">
 						</td>
 					</tr>
-					{{#if penalties}}
-					<tr>
-						<td colspan="3">
-							Penalties:<br>
-							<input value="{{team1penalties}}" type="number" data-field="team1penalties"> -
-							<input value="{{team2penalties}}" type="number" data-field="team2penalties">
-						</td>
-					</tr>
-					{{/if}}
 				</table>
+				{{#if penalties}}
+					<h3>Penalties</h3>
+				{{/if}}
 				<p>{{time}}</p>
 			{{/with}}
 		{{else}}

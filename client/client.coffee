@@ -33,9 +33,10 @@ Template.finals.final 				= -> Matches.find({type: "1/1"}, sort: date: 1)
 
 Template.matchRow.isCurrentMatch = ->
 	now = Session.get("date")
-	before = new Date(now - 1000 * 60 * 120)
+	before = new Date(now - 1000 * 60 * 180)
 	if @date <= now and @date >= before then "current" else ""
-Template.matchRow.disabled = -> if @date < new Date(Session.get("date") - 1000 * 60 * 120) then "disabled" else ""
+Template.matchRow.disabled = ->
+	if @date < new Date(Session.get("date") - 1000 * 60 * 180) then "disabled" else ""
 Template.matchRow.date  = -> moment(@date).format("DD MMM")
 Template.matchRow.time  = ->
 	time = moment(@date).format("HH:mm")
@@ -60,6 +61,8 @@ Template.matchRow.team1checked = ->
 Template.matchRow.team2checked = ->
 	return false unless Meteor.user()
 	if Meteor.user().profile.predictions[@_id]?.predictedWinner is @team2 then "checked" else ""
+Template.matchRow.team1WinsOnPenalties = -> @team1 is @winnerOnPenalties
+Template.matchRow.team2WinsOnPenalties = -> @team2 is @winnerOnPenalties
 
 Template.matchRow.events
 	"change .toggleWinner": (evt) ->
@@ -67,6 +70,7 @@ Template.matchRow.events
 		value = $(evt.target).val()
 		if checked
 			Meteor.call "updateFinalsWinner", @_id, value
+			Meteor.call "calcRankings"
 
 	"input .score:not(.prediction) input": (evt) ->
 		field = $(evt.target).data("field")
@@ -85,6 +89,7 @@ Template.matchRow.events
 		$next = $els.eq index + 1
 		$next.focus()
 
+		Meteor.call "calcRankings"
 		Meteor.call "updatePredictions", @_id, @type, field, value
 
 
@@ -104,7 +109,7 @@ Template.leaderboard.name = -> @services.google.given_name
 Template.leaderboard.points = -> @profile.points or 0
 Template.leaderboard.currentMatchPrediction = ->
 	now = Session.get("date")
-	before = new Date(now - 1000 * 60 * 120)
+	before = new Date(now - 1000 * 60 * 180)
 	currentMatch = Matches.findOne $and: [{date: $lte: now}, {date: $gte: before}]
 	if currentMatch
 		prediction = @profile.predictions[currentMatch._id]
@@ -122,20 +127,22 @@ Template.leaderboard.rendered = ->
 
 
 
-# there is a current match if one started between now and 2 hours ago
+# there is a current match if one started between now and 3 hours ago
 Template.currentMatch.match = ->
 	now = Session.get("date")
-	before = new Date(now - 1000 * 60 * 120)
+	before = new Date(now - 1000 * 60 * 180)
 	Matches.findOne $and: [{date: $lte: now}, {date: $gte: before}]
 Template.currentMatch.team1 = -> Teams.findOne(_id: @team1).name
 Template.currentMatch.team2 = -> Teams.findOne(_id: @team2).name
 # it's halftime if the match started between 45 and 60 mins ago
 Template.currentMatch.time = ->
 	time = moment(Session.get("date") - @date)
+	if time > 1000 * 60 * 100
+		return (time.format('mm') * 1 + 90) + ":" + time.format('ss') + " (extra time)"
 	if time > 1000 * 60 * 45 and time < 1000 * 60 * 60
 		return "halftime!"
 	if time > 1000 * 60 * 60
-		return (time.minutes() + 45) + ":" + time.seconds()
+		return (time.format('mm') * 1 + 45) + ":" + time.format('ss')
 	time.format "mm:ss"
 
 Template.currentMatch.nextMatch = -> Matches.findOne {date: $gte: new Date()}, {sort: date: 1}
@@ -145,7 +152,9 @@ Template.currentMatch.nextTime = -> # gadget, next time...
 	moment(@date).format "dddd, MMMM DD\\t\\h \\a\\t HH:mm"
 Template.currentMatch.penalties = ->
 	time = moment(Session.get("date") - @date)
-	@type in ["1/8", "1/4", "1/2", "3/4", "1/1"] and time > 1000 * 60 * 90 and @team1goals is @team2goals
+	@type in ["1/8", "1/4", "1/2", "3/4", "1/1"] and time > 1000 * 60 * 120 and @team1goals is @team2goals
+Template.currentMatch.team1penalties = -> 0
+Template.currentMatch.team2penalties = -> 0
 
 Template.currentMatch.events
 	input: (evt) ->
