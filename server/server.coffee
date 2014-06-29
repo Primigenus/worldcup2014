@@ -83,33 +83,44 @@ Accounts.onCreateUser (options, user) ->
 	user
 
 recalcPoints = (user) ->
+	return unless user
 	points = 0
-	for matchId, predictedGoals of user?.profile.predictions
+	for matchId, predictions of user.profile.predictions
 		match = Matches.findOne(matchId)
 		continue unless match
 
-		mt1 = parseInt(match.team1goals)
-		mt2 = parseInt(match.team2goals)
-		gt1 = parseInt(predictedGoals.team1goals)
-		gt2 = parseInt(predictedGoals.team2goals)
+		aTeam1Goals = parseInt(match.team1goals)
+		aTeam2Goals = parseInt(match.team2goals)
+		pTeam1Goals = parseInt(predictions.team1goals)
+		pTeam2Goals = parseInt(predictions.team2goals)
 
-		# predict winner = 3 points
 		# predict number of goals left = 1 point
 		# predict number of goals right = 1 point
 		if match.date < new Date()
-			if mt1 is gt1
-				points++
-			if mt2 is gt2
-				points++
-			if (mt1 > mt2 and gt1 > gt2) or (mt2 > mt1 and gt2 > gt1) or (mt2 is mt1 and gt2 is gt1)
-				points += 3
+			points++ if aTeam1Goals is pTeam1Goals
+			points++ if aTeam2Goals is pTeam2Goals
+				
+		actualWinner = null
+		if match.team1goals > match.team2goals
+			actualWinner = match.team1
+		else if match.team2goals > match.team1goals
+			actualWinner = match.team2
+		else if match.team1goals is match.team2goals
+			if match.type in ["1/8", "1/4", "1/2", "3/4", "1/1"]
+				actualWinner = match.winnerOnPenalties
 
-		# if this is a final and the match is a draw, the user can also predict who wins on penalties
-		# if so they get +3 points
-		if match.type in ["1/8", "1/4", "1/2", "3/4", "1/1"]
-			if mt1 is mt2 and mt1 is gt1 and mt2 is gt2
-				if predictedGoals.predictedWinner is match.winnerOnPenalties
-					points += 3
+		predictedWinner = null
+		if predictions.team1goals > predictions.team2goals
+			predictedWinner = match.team1
+		else if predictions.team2goals > predictions.team1goals
+			predictedWinner = match.team2
+		else if predictions.team1goals is predictions.team2goals
+			if match.type in ["1/8", "1/4", "1/2", "3/4", "1/1"]
+				predictedWinner = predictions.predictedWinner
+
+		# predict winner = 3 points
+		if actualWinner is predictedWinner
+			points += 3
 
 
 	# todo: predict world cup winner:     +50
