@@ -114,7 +114,11 @@ Template.leaderboard.currentMatchPrediction = ->
 	if currentMatch
 		prediction = @profile.predictions[currentMatch._id]
 		if prediction
-			prediction.team1goals + " - " + prediction.team2goals
+			res = prediction.team1goals + " - " + prediction.team2goals
+			if prediction.predictedWinner
+				winner = Teams.findOne(prediction.predictedWinner).code.toUpperCase()
+				res += " (#{winner})"
+			res
 Template.leaderboard.rendered = ->
 	$("#leaderboard").prop "_uihooks", {
 		moveElement: (node, next) ->
@@ -137,11 +141,11 @@ Template.currentMatch.team2 = -> Teams.findOne(_id: @team2).name
 # it's halftime if the match started between 45 and 60 mins ago
 Template.currentMatch.time = ->
 	time = moment(Session.get("date") - @date)
-	if time > 1000 * 60 * 100
+	if time > 1000 * 60 * 110
 		return (time.format('mm') * 1 + 90) + ":" + time.format('ss') + " (extra time)"
-	if time > 1000 * 60 * 45 and time < 1000 * 60 * 60
+	else if time > 1000 * 60 * 45 and time < 1000 * 60 * 60
 		return "halftime!"
-	if time > 1000 * 60 * 60
+	else if time > 1000 * 60 * 60
 		return (time.format('mm') * 1 + 45) + ":" + time.format('ss')
 	time.format "mm:ss"
 
