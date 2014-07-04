@@ -88,6 +88,7 @@ recalcPoints = (user) ->
 	for matchId, predictions of user.profile.predictions
 		match = Matches.findOne(matchId)
 		continue unless match
+		continue if match.date > new Date()
 
 		aTeam1Goals = parseInt(match.team1goals)
 		aTeam2Goals = parseInt(match.team2goals)
@@ -96,9 +97,8 @@ recalcPoints = (user) ->
 
 		# predict number of goals left = 1 point
 		# predict number of goals right = 1 point
-		if match.date < new Date()
-			points++ if aTeam1Goals is pTeam1Goals
-			points++ if aTeam2Goals is pTeam2Goals
+		points++ if aTeam1Goals is pTeam1Goals
+		points++ if aTeam2Goals is pTeam2Goals
 				
 		actualWinner = null
 		if match.team1goals > match.team2goals
@@ -195,12 +195,12 @@ getPredictedTeam = (type, matchNum) ->
 	predictions = Meteor.user().profile.predictions
 	if type is "1/4"
 		eighthFinals = Matches.find({type: "1/8"}, {sort: date: 1}).fetch()
-		match = eighthFinals[matchNum - 1]
+		match = eighthFinals[matchNum]
 		matchPredictions = predictions[match._id]
 		
 	if type is "1/2"
 		quarterFinals = Matches.find({type: "1/4"}, {sort: date: 1}).fetch()
-		match = quarterFinals[matchNum - 1]
+		match = quarterFinals[matchNum]
 		matchPredictions = predictions[match._id]
 
 	# if type is "3/4"
@@ -222,6 +222,9 @@ getPredictedTeam = (type, matchNum) ->
 Meteor.methods
 	getDate: -> new Date()
 
+	setMatchTeams: (matchId, newTeam1, newTeam2) ->
+		Matches.update matchId, $set: team1: Teams.findOne(code: newTeam1)._id, team2: Teams.findOne(code: newTeam2)._id
+
 	updatePredictionDetails: (field, value) ->
 		return unless @userId
 		updateObj = {}
@@ -234,28 +237,41 @@ Meteor.methods
 		# _.each letters, (letter, n) ->
 		# 	rankings.push calcRanking(letters[n])
 
-		quarterFinals = Matches.find({type: "1/4"}, {sort: date: 1}).fetch()
+		semiFinals = Matches.find({type: "1/2"}, sort: date: 1).fetch()
 
-		# 5 vs 6
-		Matches.update(quarterFinals[0]._id, {$set: {
-			team1: getPredictedTeam("1/4", 5)
-			team2: getPredictedTeam("1/4", 6)
+		# B vs A
+		Matches.update(semiFinals[0]._id, {$set: {
+			team1: getPredictedTeam("1/2", 1)
+			team2: getPredictedTeam("1/2", 0)
 		}})
-		# 1 vs 2
-		Matches.update(quarterFinals[1]._id, {$set: {
-			team1: getPredictedTeam("1/4", 1)
-			team2: getPredictedTeam("1/4", 2)
+		# D vs C
+		Matches.update(semiFinals[1]._id, {$set: {
+			team1: getPredictedTeam("1/2", 3)
+			team2: getPredictedTeam("1/2", 2)
 		}})
-		# 7 vs 8
-		Matches.update(quarterFinals[2]._id, {$set: {
-			team1: getPredictedTeam("1/4", 7)
-			team2: getPredictedTeam("1/4", 8)
-		}})
-		# 3 vs 4
-		Matches.update(quarterFinals[3]._id, {$set: {
-			team1: getPredictedTeam("1/4", 3)
-			team2: getPredictedTeam("1/4", 4)
-		}})
+
+		# quarterFinals = Matches.find({type: "1/4"}, {sort: date: 1}).fetch()
+
+		# # 5 vs 6
+		# Matches.update(quarterFinals[0]._id, {$set: {
+		# 	team1: getPredictedTeam("1/4", 5)
+		# 	team2: getPredictedTeam("1/4", 6)
+		# }})
+		# # 1 vs 2
+		# Matches.update(quarterFinals[1]._id, {$set: {
+		# 	team1: getPredictedTeam("1/4", 1)
+		# 	team2: getPredictedTeam("1/4", 2)
+		# }})
+		# # 7 vs 8
+		# Matches.update(quarterFinals[2]._id, {$set: {
+		# 	team1: getPredictedTeam("1/4", 7)
+		# 	team2: getPredictedTeam("1/4", 8)
+		# }})
+		# # 3 vs 4
+		# Matches.update(quarterFinals[3]._id, {$set: {
+		# 	team1: getPredictedTeam("1/4", 3)
+		# 	team2: getPredictedTeam("1/4", 4)
+		# }})
 
 		# 1A vs 2B
 		# Matches.update(eighthFinals[0]._id, {$set: {team1: _.keys(rankings[0])[0], team2: _.keys(rankings[1])[1]}})
