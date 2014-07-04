@@ -138,27 +138,12 @@ Template.currentMatch.match = ->
 	Matches.findOne $and: [{date: $lte: now}, {date: $gte: before}]
 Template.currentMatch.team1 = -> Teams.findOne(_id: @team1).name
 Template.currentMatch.team2 = -> Teams.findOne(_id: @team2).name
-# it's halftime if the match started between 45 and 60 mins ago
-Template.currentMatch.time = ->
-	time = moment(Session.get("date") - @date)
-	if time > 1000 * 60 * 110
-		return (time.format('mm') * 1 + 90) + ":" + time.format('ss') + " (extra time)"
-	else if time > 1000 * 60 * 45 and time < 1000 * 60 * 60
-		return "halftime!"
-	else if time > 1000 * 60 * 60
-		return (time.format('mm') * 1 + 45) + ":" + time.format('ss')
-	time.format "mm:ss"
 
 Template.currentMatch.nextMatch = -> Matches.findOne {date: $gte: new Date()}, {sort: date: 1}
 Template.currentMatch.nextTeam1 = -> Teams.findOne(_id: @team1)?.name
 Template.currentMatch.nextTeam2 = -> Teams.findOne(_id: @team2)?.name
 Template.currentMatch.nextTime = -> # gadget, next time...
 	moment(@date).format "dddd, MMMM DD\\t\\h \\a\\t HH:mm"
-Template.currentMatch.penalties = ->
-	time = moment(Session.get("date") - @date)
-	@type in ["1/8", "1/4", "1/2", "3/4", "1/1"] and time > 1000 * 60 * 120 and @team1goals is @team2goals
-Template.currentMatch.team1penalties = -> 0
-Template.currentMatch.team2penalties = -> 0
 
 Template.currentMatch.events
 	input: (evt) ->
