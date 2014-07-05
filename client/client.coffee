@@ -66,7 +66,7 @@ Template.matchRow.team2WinsOnPenalties = -> @team2 is @winnerOnPenalties
 
 Template.matchRow.events
 	"change .toggleWinner": (evt) ->
-		checked = $(evt.target).prop("checked")
+		checked = $(evt.target).is(":checked")
 		value = $(evt.target).val()
 		if checked
 			Meteor.call "updateFinalsWinner", @_id, value
