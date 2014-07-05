@@ -57,14 +57,18 @@ Meteor.startup ->
 
 	Meteor.users.after.update (userId, doc, fieldNames, modifier, options) ->
 		return unless userId
-		points = recalcPoints doc
+		return unless _.keys(modifier["$set"])[0].indexOf("profile.predictions") is 0
+		allMatches = Matches.find(date: $lt: new Date()).fetch()
+		points = recalcPoints doc, allMatches
 		if points isnt this.previous.profile.points
 			Meteor.users.update userId, $set: "profile.points": points
 
 	Matches.after.update (userId, doc, fieldNames, modifier, options) ->
+		allMatches = Matches.find(date: $lt: new Date()).fetch()
 		_.each Meteor.users.find().fetch(), (user) ->
-			points = recalcPoints user
-			Meteor.users.update user._id, $set: "profile.points": points
+			points = recalcPoints user, allMatches
+			if points isnt user.profile.points
+				Meteor.users.update user._id, $set: "profile.points": points
 
 Meteor.users.allow
 	update: (userId, doc, fieldNames, modifier) ->
@@ -82,14 +86,13 @@ Accounts.onCreateUser (options, user) ->
 		user.profile = options.profile
 	user
 
-recalcPoints = (user) ->
+recalcPoints = (user, matches) ->
 	return unless user
 	points = 0
 	for matchId, predictions of user.profile.predictions
-		match = Matches.findOne(matchId)
+		match = _.find(matches, (m) -> m._id is matchId)
 		continue unless match
-		continue if match.date > new Date()
-
+		
 		aTeam1Goals = parseInt(match.team1goals)
 		aTeam2Goals = parseInt(match.team2goals)
 		pTeam1Goals = parseInt(predictions.team1goals)
